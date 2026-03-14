@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="feef876f-a602-4674-83db-d2ca1124afe4" name="Changes" comment="Removing Unwanted files">
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$CodePayload.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$CodePayload.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$OptionsDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$OptionsDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$PairSummary.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$PairSummary.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$ReportData.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$ReportData.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$ResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$ResponseDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$Submission.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController$Submission.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/AnalyzeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/AnalyzeController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/SimilarityEngine.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/SimilarityEngine.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/Tokenizer$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/Tokenizer$Token.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/Tokenizer$Token.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/Tokenizer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/Tokenizer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +31,9 @@
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="36luHydfZpmGZUrGdRQZDYA5kbd" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -102,7 +93,7 @@
       <option name="presentableId" value="Default" />
       <updated>1765593394623</updated>
       <workItem from="1773260733138" duration="939000" />
-      <workItem from="1773483568302" duration="6537000" />
+      <workItem from="1773483568302" duration="7211000" />
     </task>
     <task id="LOCAL-00001" summary="Removing Unwanted files">
       <option name="closed" value="true" />
