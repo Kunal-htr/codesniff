@@ -19,7 +19,9 @@ public class CorsConfig {
                                 "http://localhost:5173",
                                 "http://localhost:9090",
                                 "https://codesniff.vercel.app",
-                                "https://codesniff-backend.onrender.com"
+                                "https://codesniff-backend.onrender.com",
+                                "https://codesniff.tech",
+                                "https://www.codesniff.tech"
                         )
                         .allowedMethods("POST", "GET", "OPTIONS", "PUT", "DELETE")
                         .allowedHeaders("*")
