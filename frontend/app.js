@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE = "https://codesniff-backend.onrender.com/";
+const API_BASE = "https://codesniff-backend.onrender.com";
 
 // app.js — cleaned, defensive, ready to paste
 (function () {
