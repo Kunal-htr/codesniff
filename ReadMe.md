@@ -17,9 +17,18 @@
 
 ---
 
-## 📸 Preview
+## About
 
-> CodeSniff analyzes source code files and detects similarity using token-based fingerprinting
+> *"In a world where code is copied, CodeSniff sees what eyes can't."*
+
+CodeSniff is a **token-based code similarity analyzer** designed to detect 
+plagiarism in **Java source files**. It uses the K-gram fingerprinting technique 
+combined with the Winnowing algorithm — the same approach used by Stanford's 
+MOSS system — to identify copied code even when variable names are changed, 
+comments are removed, or statements are reordered.
+
+Currently supporting **Java** with plans to expand to Python, C++, JavaScript 
+and more in future releases through AI-powered semantic analysis.
 
 ---
 
