@@ -285,11 +285,69 @@ Live in ~50 seconds ✅
 
 ## 🗺️ Roadmap
 
-- [x] v0.5 — Initial release with core detection
-- [ ] v1.0 — UI redesign
-- [ ] v1.5 — User authentication
-- [ ] v2.0 — Batch processing
-- [ ] v2.5 — Detailed line-by-line report
+### ✅ v0.5 — Code Similarity Analyzer (Token-Based Approach)
+> **Current Release** — Core plagiarism detection for Java source files
+- [x] Token-based similarity detection using K-gram algorithm
+- [x] Winnowing algorithm for fingerprint selection  
+- [x] Java source file upload and pairwise comparison
+- [x] Direct code paste for quick analysis
+- [x] Similarity percentage results table
+- [x] CSV report download
+- [x] Configurable K-gram size and window options
+- [x] Cloud deployment (Vercel + Azure + Supabase)
+- [x] CI/CD pipeline via GitHub Actions
+
+---
+
+### 🔄 v1.0 — UI & User Workflow Enhancement
+> **Module 2** — Complete frontend redesign and improved user experience
+- [ ] Fully redesigned responsive UI
+- [ ] Improved upload workflow with drag & drop
+- [ ] Real-time progress indicators during analysis
+- [ ] Better results visualization
+- [ ] Mobile-friendly layout
+- [ ] Dark/light mode toggle
+
+---
+
+### 📊 v1.5 — Report Visualization
+> **Module 3** — Detailed side-by-side code comparison reports
+- [ ] Side-by-side highlighted code comparison
+- [ ] Line-level similarity highlighting
+- [ ] Detailed per-file breakdown report
+- [ ] Visual similarity heatmap
+- [ ] Export report as PDF
+- [ ] Shareable report links
+
+---
+
+### 🗄️ v2.0 — Database & Storage
+> **Module 4** — Persistent storage and user management
+- [ ] User authentication and accounts
+- [ ] Save and retrieve past analysis history
+- [ ] Batch processing of multiple file sets
+- [ ] Assignment-based submission grouping
+- [ ] Admin dashboard for educators
+- [ ] Role-based access (Student / Teacher / Admin)
+
+---
+
+### 🤖 v2.5 — Future AI Enhancements
+> **Module 5** — AI-powered semantic similarity detection
+- [ ] LLM-based semantic code understanding
+- [ ] Cross-language plagiarism detection (Python, C++, JS)
+- [ ] AI-generated code detection
+- [ ] Natural language to code similarity
+- [ ] Smart clone classification (Type 1-4)
+- [ ] Confidence score with explanation
+
+---
+
+### 🔮 Beyond v2.5
+- [ ] VS Code extension
+- [ ] GitHub Actions integration
+- [ ] API for third-party integrations
+- [ ] Support for 10+ programming languages
 
 ---
 
