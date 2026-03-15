@@ -40,6 +40,24 @@ public class AnalyzeController {
             double jaccard, double coverage, double hybrid
     ) {}
 
+    /* ===== HEALTH CHECK (used by cron + UptimeRobot to keep server warm) ===== */
+    @GetMapping(path = "/health", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("CodeSniff is alive!");
+    }
+
+    /* ===== SERVER INFO (optional - shows version + uptime) ===== */
+    @GetMapping(path = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> info() {
+        Map<String, Object> info = new LinkedHashMap<>();
+        info.put("app", "CodeSniff");
+        info.put("version", "v0.5");
+        info.put("status", "running");
+        info.put("timestamp", new java.util.Date().toString());
+        info.put("activeReports", REPORTS.size());
+        return ResponseEntity.ok(info);
+    }
+
     /* ===== JSON analyze (paste or pre-read files) ===== */
     @PostMapping(path="/analyze", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseDTO analyze(@RequestBody CodePayload payload) {
@@ -215,7 +233,6 @@ public class AnalyzeController {
             return ResponseEntity.internalServerError().body(htmlError("Internal error: " + escape(ex.toString())));
         }
     }
-
 
     /* ===== Helpers ===== */
     private static String safe(String s){ return s == null ? "" : s; }
