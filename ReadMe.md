@@ -291,8 +291,7 @@ Live in ~50 seconds ✅
 - [x] Winnowing algorithm for fingerprint selection  
 - [x] Java source file upload and pairwise comparison
 - [x] Direct code paste for quick analysis
-- [x] Similarity percentage results table
-- [x] CSV report download
+- [x] Similarity percentage results 
 - [x] Configurable K-gram size and window options
 - [x] Cloud deployment (Vercel + Azure + Supabase)
 - [x] CI/CD pipeline via GitHub Actions
