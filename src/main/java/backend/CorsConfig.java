@@ -14,14 +14,11 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
                         .allowedOrigins(
-                                "http://localhost:3000",
-                                "http://127.0.0.1:3000",
-                                "http://localhost:5173",
                                 "http://localhost:9090",
-                                "https://codesniff.vercel.app",
-                                "https://codesniff-backend.onrender.com",
                                 "https://codesniff.tech",
-                                "https://www.codesniff.tech"
+                                "https://www.codesniff.tech",
+                                "https://codesniff.vercel.app",
+                                "https://codesniff-backend.azurewebsites.net"
                         )
                         .allowedMethods("POST", "GET", "OPTIONS", "PUT", "DELETE")
                         .allowedHeaders("*")
