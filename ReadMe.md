@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/status-live-success?style=for-the-badge" alt="status"/>
 
 # {CodeSniff}
-### AI-Based Token-Level Code Plagiarism Detector
+### AI-Based Code Plagiarism Detector
 
 **Detect code similarity instantly using K-gram tokenization and Winnowing algorithm**
 
