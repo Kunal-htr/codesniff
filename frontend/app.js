@@ -295,4 +295,226 @@ const API_BASE = "https://codesniff-backend.azurewebsites.net";
   window.codesniff = window.codesniff || {};
   window.codesniff.getFiles = () => chosenFiles.slice();
 
+  // ============================================
+// BACKEND STATUS INDICATOR
+// ============================================
+  (function() {
+
+    const API_BASE_CHECK = typeof API_BASE !== 'undefined'
+        ? API_BASE
+        : "https://codesniff-backend.azurewebsites.net";
+
+    // Create indicator HTML
+    const indicator = document.createElement("div");
+    indicator.id = "backend-indicator";
+    indicator.innerHTML = `
+    <div id="bi-pill">
+      <span id="bi-dot"></span>
+      <span id="bi-text">Connecting...</span>
+      <span id="bi-timer"></span>
+    </div>
+  `;
+
+    // Styles
+    const style = document.createElement("style");
+    style.textContent = `
+    #backend-indicator {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    #bi-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      transition: all 0.4s ease;
+      background: rgba(30, 30, 40, 0.85);
+      color: #ffffff;
+      min-width: 180px;
+    }
+
+    #bi-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.4s ease;
+    }
+
+    #bi-text {
+      flex: 1;
+      letter-spacing: 0.01em;
+    }
+
+    #bi-timer {
+      font-size: 11px;
+      opacity: 0.65;
+      font-variant-numeric: tabular-nums;
+      min-width: 28px;
+      text-align: right;
+    }
+
+    /* States */
+    .bi-connecting #bi-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 0 0 rgba(245,158,11,0.6);
+      animation: bi-pulse-amber 1.4s infinite;
+    }
+
+    .bi-waking #bi-dot {
+      background: #f97316;
+      box-shadow: 0 0 0 0 rgba(249,115,22,0.6);
+      animation: bi-pulse-orange 1.2s infinite;
+    }
+
+    .bi-ready #bi-dot {
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34,197,94,0.5);
+      animation: bi-pulse-green 2s infinite;
+    }
+
+    .bi-error #bi-dot {
+      background: #ef4444;
+      animation: none;
+    }
+
+    .bi-ready #bi-pill {
+      background: rgba(20, 40, 25, 0.88);
+      border-color: rgba(34,197,94,0.25);
+    }
+
+    .bi-error #bi-pill {
+      background: rgba(40, 20, 20, 0.88);
+      border-color: rgba(239,68,68,0.25);
+    }
+
+    @keyframes bi-pulse-amber {
+      0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.6); }
+      70%  { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
+
+    @keyframes bi-pulse-orange {
+      0%   { box-shadow: 0 0 0 0 rgba(249,115,22,0.6); }
+      70%  { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+      100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+    }
+
+    @keyframes bi-pulse-green {
+      0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+      70%  { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    .bi-fadeout {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.6s ease;
+    }
+  `;
+
+    document.head.appendChild(style);
+    document.body.appendChild(indicator);
+
+    // State manager
+    const pill = indicator.querySelector("#bi-pill");
+    const dot = indicator.querySelector("#bi-dot");
+    const text = indicator.querySelector("#bi-text");
+    const timer = indicator.querySelector("#bi-timer");
+
+    function setState(state, message) {
+      pill.className = "";
+      pill.classList.add("bi-" + state);
+      text.textContent = message;
+    }
+
+    // Live timer
+    let seconds = 0;
+    let timerInterval = null;
+
+    function startTimer() {
+      seconds = 0;
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        timer.textContent = m > 0
+            ? `${m}m ${s}s`
+            : `${s}s`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timer.textContent = "";
+    }
+
+    // Auto-hide after success
+    function hideAfterDelay(ms) {
+      setTimeout(() => {
+        indicator.classList.add("bi-fadeout");
+        setTimeout(() => {
+          indicator.style.display = "none";
+        }, 700);
+      }, ms);
+    }
+
+    // Main check logic
+    let attempt = 0;
+    const MAX_ATTEMPTS = 10;
+    const RETRY_DELAY = 6000;
+
+    async function checkBackend() {
+      attempt++;
+
+      if (attempt === 1) {
+        setState("connecting", "Connecting to server");
+        startTimer();
+      } else if (attempt <= 3) {
+        setState("waking", "Server waking up");
+      } else {
+        setState("waking", `Still starting up`);
+      }
+
+      try {
+        const res = await fetch(API_BASE_CHECK + "/api/health", {
+          signal: AbortSignal.timeout(8000)
+        });
+
+        if (res.ok) {
+          stopTimer();
+          setState("ready", "Server ready");
+          hideAfterDelay(2500);
+          return; // success!
+        }
+        throw new Error("Not OK");
+
+      } catch (e) {
+        if (attempt < MAX_ATTEMPTS) {
+          setTimeout(checkBackend, RETRY_DELAY);
+        } else {
+          stopTimer();
+          setState("error", "Server unavailable");
+          hideAfterDelay(5000);
+        }
+      }
+    }
+
+    // Start checking when page loads
+    document.addEventListener("DOMContentLoaded", checkBackend);
+
+  })();
+// ============================================
+
 })();
