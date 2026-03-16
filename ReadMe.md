@@ -41,6 +41,7 @@ and more in future releases through AI-powered semantic analysis.
 - ☕ **Java source file** upload and pairwise comparison
 - 💻 **Direct code paste** for quick Java code analysis
 - 📊 **Similarity percentage** results table
+- 📥 **CSV report download**
 - ⚙️ **Configurable options** — K-gram size, window size, ignore comments
 - 🌐 **Fully deployed** on cloud infrastructure
 ---
