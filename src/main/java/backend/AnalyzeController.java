@@ -155,13 +155,38 @@ public class AnalyzeController {
                     background: linear-gradient(180deg, #f7fbff, #eef6ff);
                     padding: 20px;
                 }
-                .report-back { margin-bottom: 14px; }
+                .report-back {
+                    margin-bottom: 14px;
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
                 .report-back .btn {
                     padding: 8px 14px;
                     border-radius: 8px;
                     background: linear-gradient(180deg,#ffffff,#f4faff);
                     font-weight: 600;
                     border: 1px solid var(--border);
+                    cursor: pointer;
+                }
+                .btn-download {
+                    text-decoration: none;
+                    background: linear-gradient(180deg, #2563eb, #1d4ed8) !important;
+                    color: #ffffff !important;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    border: none !important;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 14px;
+                }
+                .btn-download:hover {
+                    background: linear-gradient(180deg, #1d4ed8, #1e40af) !important;
+                    transform: translateY(-1px);
+                    transition: all 0.2s ease;
                 }
             </style>
         </head>
@@ -169,12 +194,13 @@ public class AnalyzeController {
         <div class='container'>
         """);
 
-            /* ===== CLOSE BUTTON ===== */
-            html.append("""
-        <div class='report-back'>
-            <button class='btn' onclick="window.close()">Close</button>
-        </div>
-        """);
+            /* ===== CLOSE + DOWNLOAD BUTTONS ===== */
+            html.append("<div class='report-back'>")
+                    .append("<button class='btn' onclick=\"window.close()\">Close</button>")
+                    .append("<a class='btn btn-download' href='/api/report/")
+                    .append(id)
+                    .append("/csv'>&#11015; Download CSV</a>")
+                    .append("</div>");
 
             /* ===== PAIRWISE REPORT CARD ===== */
             html.append("<div class='card'><h2>Pairwise Report</h2>");
@@ -234,12 +260,84 @@ public class AnalyzeController {
         }
     }
 
+    /* ===== CSV DOWNLOAD ===== */
+    @GetMapping(path = "/report/{id}/csv", produces = "text/csv")
+    public ResponseEntity<String> downloadCsv(@PathVariable("id") String id) {
+        try {
+            if (id == null || id.isBlank()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            ReportData r = REPORTS.get(id);
+            if (r == null) {
+                return ResponseEntity.status(404).build();
+            }
+
+            String band = r.hybrid() > 0.70 ? "High"
+                    : r.hybrid() > 0.45 ? "Suspicious"
+                    : r.hybrid() > 0.25 ? "Review" : "Clean";
+
+            StringBuilder csv = new StringBuilder();
+
+            // Header info
+            csv.append("CodeSniff Report\n");
+            csv.append("Generated,").append(new java.util.Date()).append("\n");
+            csv.append("Version,v0.5\n");
+            csv.append("\n");
+
+            // File info
+            csv.append("File A,").append(escapeCsv(r.nameA())).append("\n");
+            csv.append("File B,").append(escapeCsv(r.nameB())).append("\n");
+            csv.append("K-gram size,").append(r.k()).append("\n");
+            csv.append("Window size,").append(r.window()).append("\n");
+            csv.append("Omit Comments,").append(r.omitComments()).append("\n");
+            csv.append("\n");
+
+            // Results
+            csv.append("Metric,Value,Interpretation\n");
+            csv.append(String.format("Hybrid Score,%.1f%%,%s\n", r.hybrid() * 100, band));
+            csv.append(String.format("Jaccard Similarity,%.1f%%,Token overlap ratio\n", r.jaccard() * 100));
+            csv.append(String.format("Coverage,%.1f%%,How much of A appears in B\n", r.coverage() * 100));
+            csv.append("Fingerprints A,").append(r.fpsA() == null ? 0 : r.fpsA().size()).append(",\n");
+            csv.append("Fingerprints B,").append(r.fpsB() == null ? 0 : r.fpsB().size()).append(",\n");
+            csv.append("\n");
+
+            // Verdict
+            csv.append("Verdict\n");
+            if (r.hybrid() > 0.70) {
+                csv.append("Status,HIGH SIMILARITY - Likely plagiarism\n");
+            } else if (r.hybrid() > 0.45) {
+                csv.append("Status,SUSPICIOUS - Manual review recommended\n");
+            } else if (r.hybrid() > 0.25) {
+                csv.append("Status,REVIEW - Some similarity detected\n");
+            } else {
+                csv.append("Status,CLEAN - No significant similarity\n");
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition",
+                            "attachment; filename=\"codesniff-report-" + id.substring(0, 8) + ".csv\"")
+                    .body(csv.toString());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     /* ===== Helpers ===== */
     private static String safe(String s){ return s == null ? "" : s; }
     private static String nullTo(String s, String def){ return s == null ? def : s; }
     private static String escape(String s){
         if (s == null) return "";
         return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;");
+    }
+    private static String escapeCsv(String s) {
+        if (s == null) return "";
+        if (s.contains(",") || s.contains("\"") || s.contains("\n")) {
+            return "\"" + s.replace("\"", "\"\"") + "\"";
+        }
+        return s;
     }
     private static String htmlError(String msg){
         return "<!doctype html><html><body style='font-family:sans-serif;background:#0b0f17;color:#e8eefc;padding:24px'>"
