@@ -1,336 +1,478 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description"
+    content="CodeSniff — AI-based code plagiarism detector using K-gram tokenization and Winnowing algorithm. Detect code similarity in Java source files instantly." />
+  <meta name="theme-color" content="#1e3a5f" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="CodeSniff — AI-Based Code Plagiarism Detector" />
+  <meta property="og:description"
+    content="Detect code similarity instantly using token-based structural analysis with K-gram fingerprinting and Winnowing algorithm." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://codesniff.tech" />
+  <meta property="og:image" content="assets/4.png" />
+
+  <!-- Favicons -->
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/favicon.png">
-  <title>
-    CodeSniff
-  </title>
+
+  <title>codesniff</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-<header class="topbar">
-  <div class="container header-inner">
-    <div class="brand">
-      <!-- top-left logo: ensure assets/logo-wide.png exists -->
-      <img id="brandLogo" src="assets/3.png" alt="CodeSniff" class="brand-logo"/>
+
+  <!-- ==================== TOPBAR ==================== -->
+  <header class="topbar" id="topbar">
+    <div class="header-inner">
+      <div class="brand">
+        <a href="#/home">
+          <img id="brandLogo" src="assets/3.png" alt="CodeSniff" class="brand-logo" />
+        </a>
+      </div>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#/home" class="nav-link active" data-page="home">Home</a>
+        <a href="#/upload" class="nav-link" data-page="upload">Upload</a>
+        <a href="https://github.com/Kunal-htr/codesniff" target="_blank" rel="noopener" class="nav-github"
+          title="View on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+          </svg>
+        </a>
+      </nav>
     </div>
+  </header>
 
-    <nav class="nav" aria-label="Main navigation">
-      <a href="#/home" class="nav-link">Home</a>
-      <a href="#/upload" class="nav-link">Upload</a>
-    </nav>
-  </div>
-</header>
+  <!-- ==================== TOAST CONTAINER ==================== -->
+  <div class="toast-container" id="toastContainer"></div>
 
-<main id="app" class="container">
-  <!-- Home -->
-  <section id="page-home" class="page active">
-    <div class="hero">
-      <div class="hero-content">
-        <h1>AI-Based Code Plagiarism Detector</h1>
-        <p class="subtitle">Module-1: Token-Based Structural Similarity Engine</p>
-        <button id="btnGetStarted" class="btn btn-primary">Get Started</button>
-      </div>
-      <div class="hero-illustration" id="heroIllustration">
-        <!-- optional preview; ui.js can change this if you upload a background -->
-        <img src="assets/4.png" alt="CodeSniff mark" class="hero-logo"/>
-      </div>
-    </div>
+  <!-- ==================== MAIN ==================== -->
+  <main id="app" class="container">
 
-    <div class="features">
-      <div class="card">
-        <h3>Structural Analysis</h3>
-        <p>Tokenization & k-gram fingerprints resist renaming and formatting tricks.</p>
-      </div>
-      <div class="card">
-        <h3>Hybrid Scoring</h3>
-        <p>Jaccard + coverage gives reliable similarity scores.</p>
-      </div>
-      <div class="card">
-        <h3>Clear Reports</h3>
-        <p>Side-by-side highlights make reviews fast and transparent.</p>
-      </div>
-    </div>
+    <!-- ====== HOME PAGE ====== -->
+    <section id="page-home" class="page active">
 
-
-  </section>
-
-  <!-- ====== Long Content: Who can use our anti-plagiarism checker ====== -->
-  <section class="long-article" id="who-can-use">
-    <div class="container article-inner">
-      <h2>Who can use our anti-plagiarism checker</h2>
-
-      <p class="lead">
-        When it comes to writing, originality is the key. Whether the aim is to deliver the message, reach the target audience,
-        check understanding, or make an impact the work must be authentic. Our plagiarism detector shines when you need
-        fast, reliable checks and clear guidance for correction.
-      </p>
-
-      <div class="cards-row">
-        <article class="info-card">
-          <h3>Plagiarism checker for educators</h3>
-          <p class="brief">
-            Poor paraphrasing, translation tricks, structure rearrangement, synonymization, or hidden symbols seasoned
-            educators have seen it all. Our algorithm recognizes even tricky attempts to disguise plagiarism, making assignment
-            checking routine, fast, and automatable.
-          </p>
-          <div class="full-text hidden">
-            <p>
-              Use class-wide batch scans, obtain side-by-side reports, and export evidence for grading. The tool highlights
-              suspicious passages and links them to sources so you can verify intent quickly.
-            </p>
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-content">
+          <h1>AI-Based Code<br>Plagiarism Detector</h1>
+          <p class="subtitle">Token-based structural similarity engine powered by K-gram fingerprinting and the
+            Winnowing algorithm to detect copied code even when disguised.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button id="btnGetStarted" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              Get Started
+            </button>
+            <a href="https://github.com/Kunal-htr/codesniff" target="_blank" rel="noopener" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+              View Source
+            </a>
           </div>
-        </article>
 
-        <article class="info-card">
-          <h3>Essay plagiarism checker for students</h3>
-          <p class="brief">
-            Any academic assignment from short essays to a final thesis must be original. Accidental copying happens, and
-            a check prevents embarrassing mistakes. Our tool helps students improve by flagging risky passages and explaining fixes.
-          </p>
-          <div class="full-text hidden">
-            <p>
-              Students get explanatory highlights, citation suggestions, and quick tips for paraphrasing correctly. Use it before
-              submission to avoid avoidable penalties.
-            </p>
+          <!-- Stats -->
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="stat-value">&lt;200ms</span>
+              <span class="stat-label">Avg Response Time</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">K-Gram</span>
+              <span class="stat-label">Fingerprint Engine</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">Type 1–4</span>
+              <span class="stat-label">Clone Detection</span>
+            </div>
           </div>
-        </article>
+        </div>
 
-        <article class="info-card">
-          <h3>Originality detector for writers</h3>
-          <p class="brief">
-            Creators sometimes unintentionally repeat ideas. Running your drafts through an originality checker protects your
-            reputation and uncovers which passages need reworking or extra attribution.
-          </p>
-          <div class="full-text hidden">
-            <p>
-              The tool differentiates between quotations and plagiarism, suggests where to add citations, and helps you preserve
-              your voice while ensuring originality.
-            </p>
+        <div class="hero-illustration" id="heroIllustration">
+          <img src="assets/4.png" alt="CodeSniff comparison illustration" class="hero-logo" />
+        </div>
+      </div>
+
+      <!-- FEATURES -->
+      <div class="features">
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
           </div>
-        </article>
-      </div>
-
-      <hr class="article-sep">
-
-      <div class="article-block">
-        <h3>Discover the benefits of using our anti-plagiarism checker</h3>
-
-        <div class="summary">
-          <ul>
-            <li><strong>Academic integrity support:</strong> identify duplications and strengthen institutional credibility.</li>
-            <li><strong>Flexibility:</strong> customizable workflows and integrations for institutional needs.</li>
-            <li><strong>Creative thinking boost:</strong> feedback helps students and writers develop original thought.</li>
-            <li><strong>Assessment simplification:</strong> automated reports with highlighted passages and sources.</li>
-          </ul>
+          <h3>Structural Analysis</h3>
+          <p>Tokenization & k-gram fingerprints resist renaming, reformatting, and comment-removal tricks.</p>
         </div>
-
-        <div class="expandable full-article open">
-          <p>
-            Our plagiarism-check software operates online  no certification required to start. It detects exact matches,
-            paraphrases, synonym swaps, and voice changes. Citations and quoted text are detected and treated correctly so that
-            references are not flagged as plagiarism by default. The product also includes a citation generator and grammar checker
-            to help polish documents before submission.
-          </p>
-
-          <p>
-            Plagiarism ranges from intentional theft to accidental similarity. We flag both: deliberate obfuscation (hidden symbols,
-            Cyrillic swaps, heavy paraphrasing) and unintentional overlap. The tool helps users learn proper referencing and encourages
-            development of original style by identifying problem areas and recommending corrections.
-          </p>
-
-          <p>
-            The consequences of plagiarism can be severe reputational damage, academic penalties, and in some cases legal action.
-            Regular checks limit risk and teach good habits. Use the tool as part of your editorial workflow or course assessment to
-            remain confident in your content’s originality.
-          </p>
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 20V10" />
+              <path d="M18 20V4" />
+              <path d="M6 20v-4" />
+            </svg>
+          </div>
+          <h3>Hybrid Scoring</h3>
+          <p>Jaccard similarity combined with coverage metrics delivers reliable, nuanced similarity scores.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </div>
+          <h3>Clear Reports</h3>
+          <p>Side-by-side highlights with color-coded severity make reviews fast and transparent.</p>
         </div>
       </div>
 
-      <hr class="article-sep">
-
-      <div class="tips">
-        <h3>How a similarity checker helps teachers</h3>
-        <ol>
-          <li>Don't copy & paste large blocks use short quotes and cite sources.</li>
-          <li>Paraphrase correctly and cite the original source.</li>
-          <li>Develop your voice rely on research, then write in your own words.</li>
-          <li>Use the checker before submission to catch accidental similarities.</li>
-        </ol>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- Upload -->
-  <section id="page-upload" class="page">
-    <h2 class="page-title">Analyze Your Code</h2>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="code">Code</button>
-      <button class="tab" data-tab="files">Source File</button>
-    </div>
-
-    <div id="tab-code" class="tabpanel active">
-      <div class="split">
-        <div class="panel">
-          <label for="codeA">Code A</label>
-          <textarea id="codeA" spellcheck="false" placeholder="// Paste first program here"></textarea>
-        </div>
-        <div class="panel">
-          <label for="codeB">Code B</label>
-          <textarea id="codeB" spellcheck="false" placeholder="// Paste second program here"></textarea>
-        </div>
-      </div>
-
-      <div class="actions controls-row">
-        <label class="checkbox">
-          <input type="checkbox" id="omitCommentsCode" checked />
-          <span>Ignore comments</span>
-        </label>
-        <div class="inline params">
-          <label for="kCode">K-gram</label>
-          <input id="kCode" type="number" min="3" max="10" step="1" value="6" />
-          <label for="wCode">Window</label>
-          <input id="wCode" type="number" min="3" max="10" step="1" value="4" />
-        </div>
-        <div class="btn-group">
-          <button id="btnAnalyzeCode" class="btn btn-primary">Analyze</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="tab-files" class="tabpanel">
-      <div class="dropzone" id="dropzone">
-        <div class="dz-icon">⬆</div>
-        <p>Drag & drop source files here</p>
-        <p class="muted">or</p>
-        <button id="btnBrowse" class="btn">Choose Files</button>
-        <input id="fileInput" type="file" multiple hidden
-               accept=".java,.py,.c,.cpp,.js,.ts,.cs,.kt,.go,.rb,.swift,.php,.txt" />
-      </div>
-
-      <div id="fileList" class="filelist"></div>
-
-      <div class="actions controls-row">
-        <label class="checkbox">
-          <input type="checkbox" id="omitCommentsFiles" checked />
-          <span>Ignore comments</span>
-        </label>
-        <div class="inline params">
-          <label for="kFiles">K-gram</label>
-          <input id="kFiles" type="number" min="3" max="10" step="1" value="6" />
-          <label for="wFiles">Window</label>
-          <input id="wFiles" type="number" min="3" max="10" step="1" value="4" />
-        </div>
-        <div class="btn-group">
-          <button id="btnAnalyzeFiles" class="btn btn-primary">Analyze Files</button>
-        </div>
-      </div>
-    </div>
-
-    <section id="results" class="results hidden" aria-live="polite">
-      <h3>Results</h3>
-      <div id="summary" class="summary"></div>
-      <table class="table" id="resultTable" aria-label="Similarity results table">
-        <thead>
-        <tr><th>#</th><th>Item A</th><th>Item B</th><th>Similarity %</th><th>Report</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
     </section>
-  </section>
-</main>
 
-<footer class="site-footer">
-  <div class="footer-columns">
+    <!-- ====== WHO CAN USE SECTION ====== -->
+    <section class="long-article" id="who-can-use">
+      <div class="container article-inner">
+        <h2>Who can use our anti-plagiarism checker</h2>
 
-    <div class="col">
-      <h4>Project Overview</h4>
-      <ul>
-        <li>AI-Based Code Plagiarism Detection</li>
-        <li>Token-Based Analysis Engine</li>
-        <li>K-Gram & Winnowing Technique</li>
-        <li>Structural Similarity Detection</li>
-        <li>Highlight-Based Reports</li>
-      </ul>
-    </div>
+        <p class="lead">
+          When it comes to writing, originality is the key. Whether the aim is to deliver the message, reach the target
+          audience,
+          check understanding, or make an impact the work must be authentic. Our plagiarism detector shines when you
+          need
+          fast, reliable checks and clear guidance for correction.
+        </p>
 
-    <div class="col">
-      <h4>Core Features</h4>
-      <ul>
-        <li>Code Normalization & Tokenization</li>
-        <li>Fingerprint Generation</li>
-        <li>Hybrid Scoring (Jaccard + Coverage)</li>
-        <li>Side-by-Side Comparison</li>
-        <li>CSV Report Export</li>
-      </ul>
-    </div>
+        <div class="cards-row">
+          <article class="info-card">
+            <h3>Plagiarism checker for educators</h3>
+            <p class="brief">
+              Poor paraphrasing, translation tricks, structure rearrangement, synonymization, or hidden symbols seasoned
+              educators have seen it all. Our algorithm recognizes even tricky attempts to disguise plagiarism, making
+              assignment
+              checking routine, fast, and automatable.
+            </p>
+            <div class="full-text hidden">
+              <p>
+                Use class-wide batch scans, obtain side-by-side reports, and export evidence for grading. The tool
+                highlights
+                suspicious passages and links them to sources so you can verify intent quickly.
+              </p>
+            </div>
+          </article>
 
-    <div class="col">
-      <h4>Modules</h4>
-      <ul>
-        <li>Module-1: Similarity Engine</li>
-        <li>Module-2: UI & User Workflow</li>
-        <li>Module-3: Report Visualization</li>
-        <li>Module-4: Database & Storage</li>
-        <li>Module-5: Future AI Enhancements</li>
-      </ul>
-    </div>
+          <article class="info-card">
+            <h3>Essay plagiarism checker for students</h3>
+            <p class="brief">
+              Any academic assignment from short essays to a final thesis must be original. Accidental copying happens,
+              and
+              a check prevents embarrassing mistakes. Our tool helps students improve by flagging risky passages and
+              explaining fixes.
+            </p>
+            <div class="full-text hidden">
+              <p>
+                Students get explanatory highlights, citation suggestions, and quick tips for paraphrasing correctly.
+                Use it before
+                submission to avoid avoidable penalties.
+              </p>
+            </div>
+          </article>
 
-    <div class="col">
-      <h4>Research Areas</h4>
-      <ul>
-        <li>Plagiarism Avoidance Techniques</li>
-        <li>Obfuscation Detection</li>
-        <li>Syntax vs Structural Comparison</li>
-        <li>Pattern Recognition in Code</li>
-        <li>Algorithm Optimization</li>
-      </ul>
-    </div>
-
-  </div>
-
-
-  <div class="footer-bottom">
-    <div class="left">
-      <div class="brand-row">
-        <img src="assets/3.png" alt="logo" class="footer-logo"/>
-      </div>
-      <div class="lang-row">
-        <button class="lang">EN</button>
-        <button class="lang">ES</button>
-        <button class="lang">FR</button>
-        <button class="lang">DE</button>
-        <button class="lang">PT</button>
-      </div>
-    </div>
-
-    <div class="right">
-      <div class="contact">
-        <div class="contact-info">
-          <div>kunalpatel5476@gmail.com</div>
-          <div>Drop mail here!</div>
+          <article class="info-card">
+            <h3>Originality detector for writers</h3>
+            <p class="brief">
+              Creators sometimes unintentionally repeat ideas. Running your drafts through an originality checker
+              protects your
+              reputation and uncovers which passages need reworking or extra attribution.
+            </p>
+            <div class="full-text hidden">
+              <p>
+                The tool differentiates between quotations and plagiarism, suggests where to add citations, and helps
+                you preserve
+                your voice while ensuring originality.
+              </p>
+            </div>
+          </article>
         </div>
-        <div class="avatars">
-          <img src="assets/avatar1.jpg" alt="agent" />
-          <img src="assets/avatar2.jpg" alt="agent" />
+
+        <hr class="article-sep">
+
+        <div class="article-block">
+          <h3>Discover the benefits of using our anti-plagiarism checker</h3>
+
+          <div class="summary">
+            <ul>
+              <li><strong>Academic integrity support:</strong> identify duplications and strengthen institutional
+                credibility.</li>
+              <li><strong>Flexibility:</strong> customizable workflows and integrations for institutional needs.</li>
+              <li><strong>Creative thinking boost:</strong> feedback helps students and writers develop original
+                thought.</li>
+              <li><strong>Assessment simplification:</strong> automated reports with highlighted passages and sources.
+              </li>
+            </ul>
+          </div>
+
+          <div class="full-article">
+            <p>
+              Our plagiarism-check software operates online no certification required to start. It detects exact
+              matches,
+              paraphrases, synonym swaps, and voice changes. Citations and quoted text are detected and treated
+              correctly so that
+              references are not flagged as plagiarism by default. The product also includes a citation generator and
+              grammar checker
+              to help polish documents before submission.
+            </p>
+
+            <p>
+              Plagiarism ranges from intentional theft to accidental similarity. We flag both: deliberate obfuscation
+              (hidden symbols,
+              Cyrillic swaps, heavy paraphrasing) and unintentional overlap. The tool helps users learn proper
+              referencing and encourages
+              development of original style by identifying problem areas and recommending corrections.
+            </p>
+
+            <p>
+              The consequences of plagiarism can be severe reputational damage, academic penalties, and in some cases
+              legal action.
+              Regular checks limit risk and teach good habits. Use the tool as part of your editorial workflow or course
+              assessment to
+              remain confident in your content's originality.
+            </p>
+          </div>
+        </div>
+
+        <hr class="article-sep">
+
+        <div class="tips">
+          <h3>How a similarity checker helps teachers</h3>
+          <ol>
+            <li>Don't copy & paste large blocks use short quotes and cite sources.</li>
+            <li>Paraphrase correctly and cite the original source.</li>
+            <li>Develop your voice rely on research, then write in your own words.</li>
+            <li>Use the checker before submission to catch accidental similarities.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== UPLOAD PAGE ====== -->
+    <section id="page-upload" class="page">
+      <h2 class="page-title">Analyze Your Code</h2>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="code">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          Code
+        </button>
+        <button class="tab" data-tab="files">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          Source File
+        </button>
+      </div>
+
+      <!-- CODE TAB -->
+      <div id="tab-code" class="tabpanel active">
+        <div class="split">
+          <div class="panel">
+            <label for="codeA">Code A</label>
+            <textarea id="codeA" spellcheck="false"
+              placeholder="// Paste first Java program here&#10;public class Solution {&#10;    ...&#10;}"></textarea>
+          </div>
+          <div class="panel">
+            <label for="codeB">Code B</label>
+            <textarea id="codeB" spellcheck="false"
+              placeholder="// Paste second Java program here&#10;public class Answer {&#10;    ...&#10;}"></textarea>
+          </div>
+        </div>
+
+        <div class="actions controls-row">
+          <label class="checkbox">
+            <input type="checkbox" id="omitCommentsCode" checked />
+            <span>Ignore comments</span>
+          </label>
+          <div class="inline params">
+            <label for="kCode">K-gram</label>
+            <input id="kCode" type="number" min="3" max="10" step="1" value="6" />
+            <label for="wCode">Window</label>
+            <input id="wCode" type="number" min="3" max="10" step="1" value="4" />
+          </div>
+          <div class="btn-group">
+            <button id="btnAnalyzeCode" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Analyze
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="copyright">
-        © 2024-25 CodeSniff.org
+      <!-- FILES TAB -->
+      <div id="tab-files" class="tabpanel">
+        <div class="dropzone" id="dropzone">
+          <div class="dz-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <p>Drag & drop source files here</p>
+          <p class="muted">or</p>
+          <button id="btnBrowse" class="btn">Choose Files</button>
+          <input id="fileInput" type="file" multiple hidden
+            accept=".java,.py,.c,.cpp,.js,.ts,.cs,.kt,.go,.rb,.swift,.php,.txt" />
+        </div>
+
+        <div id="fileList" class="filelist"></div>
+
+        <div class="actions controls-row">
+          <label class="checkbox">
+            <input type="checkbox" id="omitCommentsFiles" checked />
+            <span>Ignore comments</span>
+          </label>
+          <div class="inline params">
+            <label for="kFiles">K-gram</label>
+            <input id="kFiles" type="number" min="3" max="10" step="1" value="6" />
+            <label for="wFiles">Window</label>
+            <input id="wFiles" type="number" min="3" max="10" step="1" value="4" />
+          </div>
+          <div class="btn-group">
+            <button id="btnAnalyzeFiles" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Analyze Files
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <section id="results" class="results hidden" aria-live="polite">
+        <h3>Results</h3>
+        <div id="summary" class="summary"></div>
+        <div style="overflow-x:auto;">
+          <table class="table" id="resultTable" aria-label="Similarity results table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Item A</th>
+                <th>Item B</th>
+                <th>Similarity</th>
+                <th>Report</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+
+  <footer class="site-footer">
+    <div class="footer-columns">
+
+      <!-- Column 1: Brand Info -->
+      <div class="col brand-col">
+        <div class="brand-logo-container">
+          <img src="assets/6.png" alt="CodeSniff Logo" class="footer-brand-logo" />
+        </div>
+        <p class="brand-desc">
+          Next-generation code similarity engine detecting structural plagiarism via advanced tokenized K-gram
+          fingerprinting and Winnowing techniques.
+        </p>
+      </div>
+
+      <!-- Column 2: Quick Links -->
+      <div class="col">
+        <h4>Navigation</h4>
+        <ul class="footer-nav-list">
+          <li><a href="#/home"><svg class="footer-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg> Home Portal</a></li>
+          <li><a href="#/upload"><svg class="footer-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg> Analyze Engine</a></li>
+          <li><a href="https://github.com/Kunal-htr/codesniff" target="_blank" rel="noopener"><svg
+                class="footer-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+              </svg> GitHub Source</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Tech Stack -->
+      <div class="col">
+        <h4>Core Tech Stack</h4>
+        <ul>
+          <li>Spring Boot API</li>
+          <li>K-Gram Tokenizer</li>
+          <li>Winnowing Engine</li>
+          <li>PostgreSQL Database</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <div class="copyright">
+          © 2024–2026 <strong>CodeSniff</strong>. Engineered for academic integrity & code excellence.
+        </div>
+        <div class="footer-pills-container">
+          <div class="email-pill">
+            <a href="mailto:kunalpatel5476@gmail.com" class="email-link">
+              <svg class="footer-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              kunalpatel5476@gmail.com
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  </div>
-</footer>
+  </footer>
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>
