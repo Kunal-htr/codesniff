@@ -323,8 +323,4 @@ This project is licensed under the MIT License.
 
 <div align="center">
 
-Made with ❤️ by Kunal Patel
-
-⭐ Star this repo if you found it helpful!
-
 </div>
