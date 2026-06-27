@@ -8,6 +8,7 @@ target/
 
 # Sensitive config - NEVER commit
 src/main/resources/application.properties
+src/main/resources/application-prod.properties
 
 # OS files
 .DS_Store
