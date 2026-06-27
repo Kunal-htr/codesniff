@@ -261,13 +261,32 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     const dz = $("dropzone");
     const fileInput = $("fileInput");
     const btnBrowse = $("btnBrowse");
-    if (btnBrowse && fileInput) btnBrowse.addEventListener("click", () => fileInput.click());
+
     if (fileInput) {
+      // Prevent bubbling to avoid infinite trigger loops since fileInput is a child of dropzone
+      fileInput.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
       fileInput.addEventListener("change", (e) => {
         chosenFiles = Array.from(e.target.files || []);
         renderFiles(chosenFiles);
         if (chosenFiles.length > 0) {
           showToast(`${chosenFiles.length} file(s) selected`, "success");
+        }
+      });
+    }
+
+    if (btnBrowse && fileInput) {
+      btnBrowse.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+    }
+
+    if (dz && fileInput) {
+      dz.addEventListener("click", (e) => {
+        if (e.target !== fileInput && e.target !== btnBrowse) {
+          fileInput.click();
         }
       });
     }
