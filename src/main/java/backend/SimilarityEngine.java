@@ -2,6 +2,7 @@ package backend;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import backend.ast.*;
 
 public class SimilarityEngine {
 
@@ -26,8 +27,17 @@ public class SimilarityEngine {
         public final Set<Long> fpSet;
         public final List<Fingerprint> fps;
         public final int tokenCount;
-        public Analysis(Set<Long> fpSet, List<Fingerprint> fps, int tokenCount) {
-            this.fpSet = fpSet; this.fps = fps; this.tokenCount = tokenCount;
+        public final List<String> symbolStream;
+        public final String normalizedCode;
+        public final String rawCode;
+
+        public Analysis(Set<Long> fpSet, List<Fingerprint> fps, int tokenCount, List<String> symbolStream, String normalizedCode, String rawCode) {
+            this.fpSet = fpSet;
+            this.fps = fps;
+            this.tokenCount = tokenCount;
+            this.symbolStream = symbolStream;
+            this.normalizedCode = normalizedCode;
+            this.rawCode = rawCode;
         }
     }
 
@@ -46,37 +56,125 @@ public class SimilarityEngine {
 
         // Set for Jaccard
         Set<Long> set = fps.stream().map(f -> f.hash).collect(Collectors.toSet());
-        return new Analysis(set, fps, stream.size());
+        return new Analysis(set, fps, stream.size(), stream, norm, code);
     }
 
-    public static double jaccard(Analysis a, Analysis b) {
+    public static double jaccard(Analysis a, Analysis b, Map<Long, Double> weights) {
         if (a.fpSet.isEmpty() && b.fpSet.isEmpty()) return 1.0;
-        int inter = 0;
-        for (Long h : a.fpSet) if (b.fpSet.contains(h)) inter++;
-        int union = a.fpSet.size() + b.fpSet.size() - inter;
-        return union == 0 ? 0.0 : (double) inter / union;
+        double interWeight = 0.0;
+        for (Long h : a.fpSet) {
+            if (b.fpSet.contains(h)) {
+                interWeight += weights.getOrDefault(h, 1.0);
+            }
+        }
+        double totalA = 0.0;
+        for (Long h : a.fpSet) totalA += weights.getOrDefault(h, 1.0);
+        double totalB = 0.0;
+        for (Long h : b.fpSet) totalB += weights.getOrDefault(h, 1.0);
+        
+        double unionWeight = totalA + totalB - interWeight;
+        return unionWeight == 0.0 ? 0.0 : interWeight / unionWeight;
     }
 
-    public static double coverage(Analysis a, Analysis b, int k) {
-        // Coverage = matched k-gram tokens / min(totalTokensA, totalTokensB)
+    public static double coverage(Analysis a, Analysis b, int k, Map<Long, Double> weights) {
         Set<Long> common = new HashSet<>(a.fpSet);
         common.retainAll(b.fpSet);
-        long matchedKTokens = (long) common.size() * k;
-        int denom = Math.max(1, Math.min(a.tokenCount, b.tokenCount));
-        double cov = Math.min(1.0, matchedKTokens / (double) denom);
-        return cov;
+        if (common.isEmpty()) return 0.0;
+        
+        double coveredA = computeWeightedCoveredTokens(a.fps, common, k, weights);
+        double coveredB = computeWeightedCoveredTokens(b.fps, common, k, weights);
+        
+        double totalWeightA = computeWeightedCoveredTokens(a.fps, a.fpSet, k, weights);
+        double totalWeightB = computeWeightedCoveredTokens(b.fps, b.fpSet, k, weights);
+        
+        double minTotalWeight = Math.min(totalWeightA, totalWeightB);
+        if (minTotalWeight <= 0.0) return 0.0;
+        
+        return Math.min(1.0, Math.min(coveredA, coveredB) / minTotalWeight);
     }
 
-    /** Hybrid score: weighted mean with diminishing returns. Tunable. */
-    public static double hybridScore(Analysis a, Analysis b, int k) {
-        double j = jaccard(a, b);
-        double c = coverage(a, b, k);
-        // Slightly reward coverage more; clamp
-        double s = 0.45 * j + 0.55 * c;
-        return Math.max(0.0, Math.min(1.0, s));
+    private static double computeWeightedCoveredTokens(List<Fingerprint> fps, Set<Long> hashSet, int k, Map<Long, Double> weights) {
+        if (fps == null || fps.isEmpty() || hashSet.isEmpty()) return 0.0;
+        Map<Integer, Double> tokenWeights = new HashMap<>();
+        for (Fingerprint f : fps) {
+            if (hashSet.contains(f.hash)) {
+                double w = weights.getOrDefault(f.hash, 1.0);
+                for (int i = 0; i < k; i++) {
+                    int pos = f.pos + i;
+                    double currentMax = tokenWeights.getOrDefault(pos, 0.0);
+                    if (w > currentMax) {
+                        tokenWeights.put(pos, w);
+                    }
+                }
+            }
+        }
+        double sum = 0.0;
+        for (double val : tokenWeights.values()) {
+            sum += val;
+        }
+        return sum;
     }
 
-    /* ===== Internals ===== */
+    /** Compute Longest Common Subsequence (LCS) similarity on statement-level token streams using custom weights. */
+    public static double lcsSimilarity(Analysis a, Analysis b, Map<Long, Double> stmtWeights) {
+        return LcsEngine.similarity(a.symbolStream, b.symbolStream, stmtWeights);
+    }
+
+    /** Compute Abstract Syntax Tree (AST) structural similarity. */
+    public static double astSimilarity(Analysis a, Analysis b) {
+        ASTNode treeA = ASTBuilder.build(a.rawCode);
+        ASTNode treeB = ASTBuilder.build(b.rawCode);
+        ASTSimilarityResult result = ASTComparator.compare(treeA, treeB);
+        return result.getSimilarity();
+    }
+
+    /** Hybrid score: 25% Fingerprint (Jaccard) + 35% Coverage + 20% LCS + 20% AST with Jaccard-based damping. */
+    public static double hybridScore(Analysis a, Analysis b, int k, Map<Long, Double> fpWeights, Map<Long, Double> stmtWeights) {
+        double j = jaccard(a, b, fpWeights);
+        double c = coverage(a, b, k, fpWeights);
+        double lcs = lcsSimilarity(a, b, stmtWeights);
+        double ast = astSimilarity(a, b);
+        double s = 0.25 * j + 0.35 * c + 0.20 * lcs + 0.20 * ast;
+        
+        // Soft-damping factor based on Jaccard to prevent low Jaccard masking
+        double damping = Math.min(1.0, j / 0.15); // fully active at 15% Jaccard
+        double finalScore = s * damping;
+        
+        return Math.max(0.0, Math.min(1.0, finalScore));
+    }
+
+    /** Detailed similarity results for fine-grained reporting. */
+    public static final class DetailedScore {
+        public final double fingerprintScore;
+        public final double coverageScore;
+        public final double lcsScore;
+        public final double astScore;
+        public final double hybridScore;
+
+        public DetailedScore(double fingerprintScore, double coverageScore, double lcsScore, double astScore, double hybridScore) {
+            this.fingerprintScore = fingerprintScore;
+            this.coverageScore = coverageScore;
+            this.lcsScore = lcsScore;
+            this.astScore = astScore;
+            this.hybridScore = hybridScore;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("DetailedScore[FP=%.1f%%, COV=%.1f%%, LCS=%.1f%%, AST=%.1f%%, HYB=%.1f%%]",
+                    fingerprintScore, coverageScore, lcsScore, astScore, hybridScore);
+        }
+    }
+
+    /** Helper to compute a detailed breakdown of all similarity metrics using custom weights. */
+    public static DetailedScore computeDetailedScore(Analysis a, Analysis b, int k, Map<Long, Double> fpWeights, Map<Long, Double> stmtWeights) {
+        double j = jaccard(a, b, fpWeights) * 100.0;
+        double c = coverage(a, b, k, fpWeights) * 100.0;
+        double lcs = lcsSimilarity(a, b, stmtWeights) * 100.0;
+        double ast = astSimilarity(a, b) * 100.0;
+        double hybrid = hybridScore(a, b, k, fpWeights, stmtWeights) * 100.0;
+        return new DetailedScore(j, c, lcs, ast, hybrid);
+    }
 
     // Simple Rabin-Karp rolling hash across k tokens (base B, mod 2^64 via overflow)
     private static List<Long> kgramHashes(List<String> sym, int k) {
@@ -115,7 +213,6 @@ public class SimilarityEngine {
     private static List<Fingerprint> winnow(List<Long> hashes, int w) {
         List<Fingerprint> out = new ArrayList<>();
         if (hashes.isEmpty()) return out;
-        int n = hashes.size();
         int win = Math.max(1, w);
         long best = Long.MAX_VALUE;
         int bestPos = -1;
@@ -145,12 +242,5 @@ public class SimilarityEngine {
             prev = f;
         }
         return compact;
-    }
-
-    /* Convenience: compare two source strings with options */
-    public static double compare(String aCode, String bCode, Options opt) {
-        Analysis a = analyze(aCode, opt);
-        Analysis b = analyze(bCode, opt);
-        return hybridScore(a, b, opt.k);
     }
 }
