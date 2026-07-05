@@ -114,30 +114,28 @@ User Browser
 ---
 
 ## 🔬 Detection Pipeline
+
 ```
-Input Code
-    │
-    ▼
-1. Code Normalization    → Remove comments, whitespace, lowercase
-    │
-    ▼
-2. Tokenization         → Convert code to token stream
-    │
-    ▼
-3. K-gram Generation    → Create overlapping k-grams (default k=6)
-    │
-    ▼
-4. Hashing              → Hash each k-gram
-    │
-    ▼
-5. Winnowing            → Select minimum hashes per window
-    │
-    ▼
-6. Fingerprint Compare  → Jaccard similarity between fingerprint sets
-    │
-    ▼
-Similarity Score (0% - 100%)
+                            Source Code A / B
+                             ┌───────┴───────┐
+                             ▼               ▼
+                        [Raw Code]      [Tokenizer]
+                             │               │
+                             │               ├──────────────────────┐
+                             ▼               ▼                      ▼
+                        [ASTBuilder]   [CodeNormalizer]     [StatementGrouper]
+                             │               │                      │
+                             ▼               ▼                      ▼
+                       [ASTComparator]  [Winnowing]            [LcsEngine]
+                             │               │                      │
+                             ▼               ▼                      ▼
+                         AST Score      Jaccard & Coverage      LCS Score
+                             │               │                      │
+                             └───────────────┼──────────────────────┘
+                                             ▼
+                                      [Hybrid Score]
 ```
+
 
 ---
 
