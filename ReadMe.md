@@ -38,10 +38,11 @@ and more in future releases through AI-powered semantic analysis.
 
 - 🔍 **Token-based similarity detection** using K-gram algorithm
 - 🪟 **Winnowing algorithm** for efficient fingerprint selection
+- 🌳 **AST Structural Comparison** via compiler-level parsing (JavaParser)
+- 📜 **LCS Statement Alignment** for flow-level similarity checks
 - ☕ **Java source file** upload and pairwise comparison
 - 💻 **Direct code paste** for quick Java code analysis
-- 📊 **Similarity percentage** results table
-- 📥 **CSV report download**
+- 📊 **Similarity percentage** results table and detailed visual report
 - ⚙️ **Configurable options** — K-gram size, window size, ignore comments
 - 🌐 **Fully deployed** on cloud infrastructure
 ---
@@ -249,7 +250,15 @@ codesniff/
 │       │       ├── SimilarityEngine.java    # Core detection logic
 │       │       ├── Tokenizer.java           # Code tokenization
 │       │       ├── CodeNormalizer.java      # Code preprocessing
-│       │       └── CorsConfig.java          # CORS configuration
+│       │       ├── LcsEngine.java           # LCS statement similarity
+│       │       ├── StatementGrouper.java    # Token statement grouping
+│       │       ├── CorsConfig.java          # CORS configuration
+│       │       ├── WarmupScheduler.java     # Warmup scheduler
+│       │       └── ast/                     # AST processing sub-package
+│       │           ├── ASTNode.java         # AST node definition
+│       │           ├── ASTBuilder.java      # JavaParser AST generator
+│       │           ├── ASTComparator.java   # AST structure comparison
+│       │           └── ASTSimilarityResult.java
 │       └── resources/
 │           └── static/
 │               ├── index.html               # Frontend UI
@@ -298,10 +307,10 @@ Live in ~50 seconds ✅
 | Module | Name | Status | Version |
 |---|---|---|---|
 | Module 1 | Similarity Engine | ✅ Complete | v0.5 |
-| Module 2 | UI & User Workflow | 🔄 Planned | v1.0 |
-| Module 3 | Report Visualization | 🔄 Planned | v1.5 |
-| Module 4 | Database & Storage | 🔄 Planned | v2.0 |
-| Module 5 | Future AI Enhancements | 🔄 Planned | v2.5 |
+| Module 2 | Report & Visualization | 🔄 Planned | v1.0 |
+| Module 3 | Login, Account Creation & Authorization | 🔄 Planned | v1.5 |
+| Module 4 | Database & Storage Integration | 🔄 Planned | v2.0 |
+| Module 5 | Future AI Integration | 🔄 Planned | v2.5 |
 
 ---
 
