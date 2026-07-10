@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'test_samples/**'
+      - 'ReadMe.md'
+      - '.gitignore'
 
 jobs:
   build-and-deploy:
