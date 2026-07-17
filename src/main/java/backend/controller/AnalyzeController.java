@@ -4,17 +4,20 @@ import backend.dto.AnalysisResponse;
 import backend.dto.CodePayload;
 import backend.dto.CodePayload.Submission;
 import backend.dto.CodePayload.OptionsDTO;
+import backend.dto.InfoResponse;
 import backend.dto.ReportResponse;
 import backend.service.AnalysisService;
 import backend.service.ReportService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * REST controller for CodeSniff analysis endpoints.
@@ -41,21 +44,22 @@ public class AnalyzeController {
         return ResponseEntity.ok("CodeSniff is alive!");
     }
 
-    /* ===== SERVER INFO (optional - shows version + uptime) ===== */
+    /* ===== SERVER INFO (version + uptime) ===== */
     @GetMapping(path = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> info() {
-        Map<String, Object> info = new LinkedHashMap<>();
-        info.put("app", "CodeSniff");
-        info.put("version", "v0.6");
-        info.put("status", "running");
-        info.put("timestamp", new java.util.Date().toString());
-        info.put("activeReports", reportService.activeReportCount());
-        return ResponseEntity.ok(info);
+    public ResponseEntity<InfoResponse> info() {
+        InfoResponse response = new InfoResponse(
+                "CodeSniff",
+                "v0.6",
+                "running",
+                new java.util.Date().toString(),
+                reportService.activeReportCount()
+        );
+        return ResponseEntity.ok(response);
     }
 
     /* ===== JSON analyze (paste or pre-read files) ===== */
     @PostMapping(path = "/analyze", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public AnalysisResponse analyze(@RequestBody CodePayload payload) {
+    public AnalysisResponse analyze(@Valid @RequestBody CodePayload payload) {
         return analysisService.analyze(payload);
     }
 
@@ -67,7 +71,13 @@ public class AnalyzeController {
             @RequestParam(name = "k", defaultValue = "6") int k,
             @RequestParam(name = "window", defaultValue = "4") int w) throws IOException {
         if (files == null || files.size() < 2) {
-            return new AnalysisResponse(List.of());
+            throw new IllegalArgumentException("At least 2 files are required for comparison");
+        }
+        if (k < 3 || k > 64) {
+            throw new IllegalArgumentException("k must be between 3 and 64");
+        }
+        if (w < 1 || w > 128) {
+            throw new IllegalArgumentException("window must be between 1 and 128");
         }
         List<Submission> subs = new ArrayList<>();
         for (var f : files) {
@@ -76,19 +86,10 @@ public class AnalyzeController {
         return analysisService.analyze(new CodePayload(subs, new OptionsDTO(omit, k, w)));
     }
 
-    /*
-     * ===== JSON REPORT (v0.6: returns JSON instead of HTML — intentional change)
-     * =====
-     */
+    /* ===== JSON REPORT ===== */
     @GetMapping(path = "/report/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReportResponse> report(@PathVariable("id") String id) {
-        if (id == null || id.isBlank()) {
-            return ResponseEntity.badRequest().build();
-        }
         ReportResponse response = reportService.getReport(id);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(response);
     }
 }

@@ -2,6 +2,8 @@ package backend.service;
 
 import backend.analysis.SimilarityEngine;
 import backend.dto.ReportResponse;
+import backend.dto.VerdictUtil;
+import backend.exception.ReportNotFoundException;
 import backend.store.ReportStore;
 import backend.store.ReportStore.ReportData;
 
@@ -30,28 +32,17 @@ public class ReportService {
      * Retrieve a report by ID and map it to a JSON-friendly response.
      *
      * @param id report identifier (UUID string)
-     * @return the report response, or {@code null} if not found
+     * @return the report response
+     * @throws ReportNotFoundException if the report ID does not exist
      */
     public ReportResponse getReport(String id) {
         ReportData r = reportStore.get(id);
-        if (r == null) return null;
-
-        // Compute verdict band
-        String verdict;
-        String verdictDescription;
-        if (r.hybrid() > 0.70) {
-            verdict = "High";
-            verdictDescription = "High similarity detected. There is a high probability of direct copy/paste or minimal rewriting.";
-        } else if (r.hybrid() > 0.45) {
-            verdict = "Suspicious";
-            verdictDescription = "Suspicious similarity level. Manual review is recommended to inspect similar blocks and structures.";
-        } else if (r.hybrid() > 0.25) {
-            verdict = "Review";
-            verdictDescription = "Moderate similarity. Code exhibits some shared components that should be reviewed.";
-        } else {
-            verdict = "Clean";
-            verdictDescription = "Low similarity. The two files appear to be independent implementations.";
+        if (r == null) {
+            throw new ReportNotFoundException(id);
         }
+
+        String verdict = VerdictUtil.verdict(r.hybrid());
+        String verdictDescription = VerdictUtil.verdictDescription(r.hybrid());
 
         // Compute fingerprint match statistics
         Set<Long> setA = new HashSet<>();
