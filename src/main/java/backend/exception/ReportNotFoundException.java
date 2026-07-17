@@ -9,6 +9,11 @@ public class ReportNotFoundException extends RuntimeException {
 
     private final String reportId;
 
+    /**
+     * Constructs a new ReportNotFoundException with the missing report ID.
+     *
+     * @param reportId the requested report ID that could not be found
+     */
     public ReportNotFoundException(String reportId) {
         super("Report not found: " + reportId);
         this.reportId = reportId;

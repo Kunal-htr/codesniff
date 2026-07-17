@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-v0.5-blue?style=for-the-badge" alt="version"/>
+<img src="https://img.shields.io/badge/version-v0.6-blue?style=for-the-badge" alt="version"/>
 <img src="https://img.shields.io/badge/java-17-orange?style=for-the-badge&logo=java" alt="java"/>
 <img src="https://img.shields.io/badge/spring%20boot-3.3.5-green?style=for-the-badge&logo=springboot" alt="spring boot"/>
 <img src="https://img.shields.io/badge/license-MIT-purple?style=for-the-badge" alt="license"/>
@@ -192,7 +192,7 @@ Open `http://localhost:9090` in your browser.
 
 ## 🔌 API Reference
 
-### Analyze Code Similarity
+### Analyze Code Similarity (JSON)
 ```http
 POST /api/analyze
 Content-Type: application/json
@@ -202,8 +202,8 @@ Content-Type: application/json
 ```json
 {
   "submissions": [
-    { "name": "A.java", "content": "public class A { ... }" },
-    { "name": "B.java", "content": "public class B { ... }" }
+    { "name": "A.java", "content": "public class A { int sum(int[] a){int s=0;for(int i=0;i<a.length;i++){s+=a[i];}return s;} }" },
+    { "name": "B.java", "content": "public class B { int total(int[] d){int t=0;for(int j=0;j<d.length;j++){t+=d[j];}return t;} }" }
   ],
   "options": {
     "omitComments": true,
@@ -220,9 +220,41 @@ Content-Type: application/json
     {
       "a": "A.java",
       "b": "B.java",
-      "score": 0.451
+      "score": 1.0,
+      "jaccard": 1.0,
+      "coverage": 1.0,
+      "reportId": "d741ca12-a16f-40c2-9ee6-4e59f427ee0e"
     }
   ]
+}
+```
+
+### Get Detailed Pairwise Report
+```http
+GET /api/report/{id}
+```
+
+**Response:**
+```json
+{
+  "nameA": "A.java",
+  "nameB": "B.java",
+  "jaccard": 1.0,
+  "coverage": 1.0,
+  "lcs": 1.0,
+  "ast": 1.0,
+  "hybrid": 1.0,
+  "verdict": "High",
+  "verdictDescription": "High similarity detected. There is a high probability of direct copy/paste or minimal rewriting.",
+  "operatorDivergent": false,
+  "metadata": {
+    "k": 6,
+    "window": 4,
+    "omitComments": true,
+    "fingerprintMatchCount": 15,
+    "fingerprintCountA": 15,
+    "fingerprintCountB": 15
+  }
 }
 ```
 
@@ -236,6 +268,29 @@ CodeSniff is alive!
 
 ---
 
+## 🛡️ Input Validation & Error Handling
+
+CodeSniff v0.6 introduces strict input validation and centralized exception handling. Requests are validated using **Jakarta Bean Validation** before reaching the analysis engine. 
+
+### Constraints:
+* `submissions`: Must have between **1 and 200** files per batch.
+* `name` & `content`: Must not be blank.
+* `k`: Must be between **3 and 64**.
+* `window`: Must be between **1 and 128**.
+
+### Error Response Format (`ApiErrorDTO`):
+When a validation constraint is violated, or a report ID is not found, the API returns a structured error object instead of raw stack traces:
+```json
+{
+  "error": "Bad Request",
+  "message": "Validation failed: submissions[0].content: Submission content must not be blank",
+  "status": 400,
+  "timestamp": 1784260000000
+}
+```
+
+---
+
 ## 📁 Project Structure
 ```
 codesniff/
@@ -244,26 +299,22 @@ codesniff/
 │       ├── java/
 │       │   └── backend/
 │       │       ├── App.java                 # Spring Boot entry point
-│       │       ├── AnalyzeController.java   # REST API endpoints
-│       │       ├── SimilarityEngine.java    # Core detection logic
-│       │       ├── Tokenizer.java           # Code tokenization
-│       │       ├── CodeNormalizer.java      # Code preprocessing
-│       │       ├── LcsEngine.java           # LCS statement similarity
-│       │       ├── StatementGrouper.java    # Token statement grouping
-│       │       ├── CorsConfig.java          # CORS configuration
-│       │       ├── WarmupScheduler.java     # Warmup scheduler
-│       │       └── ast/                     # AST processing sub-package
-│       │           ├── ASTNode.java         # AST node definition
-│       │           ├── ASTBuilder.java      # JavaParser AST generator
-│       │           ├── ASTComparator.java   # AST structure comparison
-│       │           └── ASTSimilarityResult.java
+│       │       ├── analysis/                # Core similarity engine & tokenization
+│       │       ├── ast/                     # AST generator & tree comparator
+│       │       ├── config/                  # CORS config beans
+│       │       ├── controller/              # REST controller (AnalyzeController)
+│       │       ├── dto/                     # Inbound/outbound request/response DTO records
+│       │       ├── exception/               # Global exception handlers & custom errors
+│       │       ├── service/                 # Business logic orchestration services
+│       │       ├── store/                   # In-memory report caching repository
+│       │       └── util/                    # Schedulers & utility helpers
 │       └── resources/
 │           └── static/
 │               ├── index.html               # Frontend UI
 │               ├── app.js                   # Frontend logic
 │               └── style.css                # Styling
 ├── frontend/                                # Vercel deployment
-├── .github/workflows/                       # CI/CD pipeline
+├── test_samples/                            # Standard plagiarism test samples
 ├── Dockerfile                               # Container config
 └── pom.xml                                  # Maven config
 ```

@@ -26,9 +26,12 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * Bean Validation failures (e.g. {@code @NotBlank}, {@code @Size}, {@code @Min}).
+     * Handles Bean Validation failures (e.g. {@code @NotBlank}, {@code @Size}, {@code @Min}).
      * <p>
      * Summarizes all field-level errors into a single human-readable message.
+     *
+     * @param ex the binding validation exception containing field errors
+     * @return response entity containing ApiErrorDTO with HTTP 400 (Bad Request)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorDTO> handleValidation(MethodArgumentNotValidException ex) {
@@ -40,7 +43,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Report not found — clean 404 with a descriptive message.
+     * Handles the case when a requested report ID is not found in the cache repository.
+     *
+     * @param ex the report not found exception
+     * @return response entity containing ApiErrorDTO with HTTP 404 (Not Found)
      */
     @ExceptionHandler(ReportNotFoundException.class)
     public ResponseEntity<ApiErrorDTO> handleReportNotFound(ReportNotFoundException ex) {
@@ -48,8 +54,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Illegal argument — typically from {@code SimilarityEngine.Options} bounds
-     * if a request somehow bypasses DTO validation (defensive catch).
+     * Handles invalid arguments passed to backend services or options checkers.
+     *
+     * @param ex the illegal argument exception
+     * @return response entity containing ApiErrorDTO with HTTP 400 (Bad Request)
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorDTO> handleIllegalArgument(IllegalArgumentException ex) {
@@ -57,7 +65,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Multipart/file-upload errors (corrupt upload, missing part, size exceeded).
+     * Handles multipart/file-upload request processing errors.
+     *
+     * @param ex the multipart exception
+     * @return response entity containing ApiErrorDTO with HTTP 400 (Bad Request)
      */
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ApiErrorDTO> handleMultipart(MultipartException ex) {
@@ -65,10 +76,13 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Generic fallback — catches any unexpected exception.
+     * Fallback handler for all uncaught/generic exceptions.
      * <p>
-     * Logs the real exception server-side but returns a safe generic message
-     * to the client. Internal details are never leaked.
+     * Logs the real stack trace on the server side for debugging, but returns a generic
+     * client-safe message to avoid leaking database schemas, file paths, or internal logic.
+     *
+     * @param ex the unexpected exception
+     * @return response entity containing ApiErrorDTO with HTTP 500 (Internal Server Error)
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> handleGeneric(Exception ex) {
@@ -79,6 +93,13 @@ public class GlobalExceptionHandler {
 
     /* ===== Helper ===== */
 
+    /**
+     * Constructs the standard ResponseEntity wrapper around ApiErrorDTO.
+     *
+     * @param status  the target HTTP status
+     * @param message the descriptive error message
+     * @return the ResponseEntitiy containing ApiErrorDTO
+     */
     private static ResponseEntity<ApiErrorDTO> buildResponse(HttpStatus status, String message) {
         ApiErrorDTO body = new ApiErrorDTO(
                 status.getReasonPhrase(),

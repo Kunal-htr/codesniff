@@ -38,13 +38,24 @@ public class AnalyzeController {
         this.reportService = reportService;
     }
 
-    /* ===== HEALTH CHECK (used by cron + UptimeRobot to keep server warm) ===== */
+    /**
+     * Endpoint for server health checking.
+     * <p>
+     * Typically polled by cron jobs or uptime monitors to keep the backend warm
+     * and prevent cloud deployment instances from entering idle sleep state.
+     *
+     * @return plain text response confirming server status (HTTP 200)
+     */
     @GetMapping(path = "/health", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("CodeSniff is alive!");
     }
 
-    /* ===== SERVER INFO (version + uptime) ===== */
+    /**
+     * Retrieves high-level application and runtime metadata.
+     *
+     * @return info response DTO containing app version, status, and cached report counts (HTTP 200)
+     */
     @GetMapping(path = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InfoResponse> info() {
         InfoResponse response = new InfoResponse(
@@ -57,13 +68,30 @@ public class AnalyzeController {
         return ResponseEntity.ok(response);
     }
 
-    /* ===== JSON analyze (paste or pre-read files) ===== */
+    /**
+     * Executes pairwise similarity analysis on Java code submissions provided via JSON payload.
+     * <p>
+     * Validates options and code submissions before invoking the underlying similarity engine.
+     *
+     * @param payload DTO containing the submissions list and engine parameters (validated via @Valid)
+     * @return analysis response DTO containing lists of evaluated pairs and their similarity metrics
+     */
     @PostMapping(path = "/analyze", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public AnalysisResponse analyze(@Valid @RequestBody CodePayload payload) {
         return analysisService.analyze(payload);
     }
 
-    /* ===== Multipart analyze (true file upload) ===== */
+    /**
+     * Executes pairwise similarity analysis on Java files uploaded as multipart form data.
+     *
+     * @param files        list of uploaded multipart files containing source code
+     * @param omitComments whether to strip comments during preprocessing
+     * @param k            the token length of k-grams for fingerprinting
+     * @param w            the winnowing window size
+     * @return analysis response DTO containing lists of evaluated pairs and their similarity metrics
+     * @throws IOException              if file read errors occur
+     * @throws IllegalArgumentException if parameter bounds or validation requirements are violated
+     */
     @PostMapping(path = "/analyze-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public AnalysisResponse analyzeFiles(
             @RequestPart("files") List<MultipartFile> files,
@@ -86,7 +114,13 @@ public class AnalyzeController {
         return analysisService.analyze(new CodePayload(subs, new OptionsDTO(omit, k, w)));
     }
 
-    /* ===== JSON REPORT ===== */
+    /**
+     * Retrieves a detailed comparison report for a specific compared pair using its unique report ID.
+     *
+     * @param id the unique UUID of the generated report
+     * @return the report details DTO containing metrics, verdicts, and match logs (HTTP 200)
+     * @throws backend.exception.ReportNotFoundException if the report ID does not exist in cache (HTTP 404)
+     */
     @GetMapping(path = "/report/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReportResponse> report(@PathVariable("id") String id) {
         ReportResponse response = reportService.getReport(id);
