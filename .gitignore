@@ -16,3 +16,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local benchmark (not pushed to repo)
+benchmark/

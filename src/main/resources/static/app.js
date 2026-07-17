@@ -468,7 +468,7 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
   // ============================================
   // BACKEND STATUS INDICATOR
   // ============================================
-  (function() {
+  (function () {
     const API_BASE_CHECK = typeof API_BASE !== 'undefined'
       ? API_BASE
       : "https://codesniff-backend.azurewebsites.net";

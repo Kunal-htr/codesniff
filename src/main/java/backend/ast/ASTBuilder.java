@@ -12,10 +12,13 @@ import com.github.javaparser.ast.type.*;
 import java.util.*;
 
 /**
- * Rich AST builder utilizing JavaParser to build a structured AST tree from raw Java code.
+ * Rich AST builder utilizing JavaParser to build a structured AST tree from raw
+ * Java code.
  * <p>
- * This replaces the previous regex-based recursive descent builder with a true compiler-level
- * parser, enabling robust and accurate Type-3 structural comparison (tolerant to reordered
+ * This replaces the previous regex-based recursive descent builder with a true
+ * compiler-level
+ * parser, enabling robust and accurate Type-3 structural comparison (tolerant
+ * to reordered
  * statements and nested control flow details).
  */
 public class ASTBuilder {
@@ -56,7 +59,8 @@ public class ASTBuilder {
      * Recursively traverses the JavaParser AST and maps it to our ASTNode tree.
      */
     private static void convert(Node jpNode, ASTNode parent) {
-        if (jpNode == null) return;
+        if (jpNode == null)
+            return;
 
         ASTNode current = null;
 
@@ -132,7 +136,8 @@ public class ASTBuilder {
                 convert(child, current);
             }
         } else {
-            // Bypass unrecognized node and recurse directly to its children under the same parent
+            // Bypass unrecognized node and recurse directly to its children under the same
+            // parent
             for (Node child : jpNode.getChildNodes()) {
                 convert(child, parent);
             }

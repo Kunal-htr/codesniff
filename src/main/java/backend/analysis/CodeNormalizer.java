@@ -1,4 +1,4 @@
-package backend;
+package backend.analysis;
 
 import java.util.*;
 import java.util.regex.*;
@@ -94,7 +94,7 @@ public class CodeNormalizer {
     private static final Pattern RELATIONAL_OP = Pattern.compile(
             "(?<eq>==|!=)"
           + "|(?<lt><=|(?<![<])<(?![<=]))"
-          + "|(?<gt>>=|(?<![->])>(?![>=]))"
+          + "|(?<gt>>=|(?<![-|>])>(?![>=]))"
     );
 
     // --- Whitespace ---
