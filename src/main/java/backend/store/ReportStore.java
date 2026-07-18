@@ -3,6 +3,8 @@ package backend.store;
 import backend.analysis.SimilarityEngine;
 import org.springframework.stereotype.Component;
 
+import backend.dto.PairSummaryDTO;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ReportStore {
 
     private final Map<String, ReportData> reports = new ConcurrentHashMap<>();
+    private final Map<String, List<PairSummaryDTO>> batchStore = new ConcurrentHashMap<>();
 
     /**
      * Internal data container holding the complete execution outcomes and token data 
@@ -83,5 +86,25 @@ public class ReportStore {
      */
     public int size() {
         return reports.size();
+    }
+
+    /**
+     * Saves a list of pairwise summaries representing a complete batch analysis.
+     *
+     * @param batchId the unique batch identifier
+     * @param summaries the list of pairwise summaries
+     */
+    public void putBatch(String batchId, List<PairSummaryDTO> summaries) {
+        batchStore.put(batchId, summaries);
+    }
+
+    /**
+     * Retrieves the list of pairwise summaries for a given batch.
+     *
+     * @param batchId the unique batch identifier
+     * @return the list of summaries, or {@code null} if not found
+     */
+    public List<PairSummaryDTO> getBatch(String batchId) {
+        return batchStore.get(batchId);
     }
 }

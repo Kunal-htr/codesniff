@@ -7,6 +7,7 @@ import backend.dto.CodePayload.OptionsDTO;
 import backend.dto.InfoResponse;
 import backend.dto.ReportResponse;
 import backend.dto.MatchesResponse;
+import backend.dto.BatchSummaryDTO;
 import backend.service.AnalysisService;
 import backend.service.ReportService;
 
@@ -138,6 +139,19 @@ public class AnalyzeController {
     @GetMapping(path = "/report/{id}/matches", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MatchesResponse> reportMatches(@PathVariable("id") String id) {
         MatchesResponse response = reportService.getMatchesReport(id);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Retrieves the batch-level summary statistics for a given analysis batch.
+     *
+     * @param id the unique UUID of the generated batch
+     * @return the BatchSummaryDTO containing aggregated metrics and pair summaries (HTTP 200)
+     * @throws backend.exception.BatchNotFoundException if the batch ID does not exist in cache (HTTP 404)
+     */
+    @GetMapping(path = "/batch/{id}/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BatchSummaryDTO> batchSummary(@PathVariable("id") String id) {
+        BatchSummaryDTO response = reportService.getBatchSummary(id);
         return ResponseEntity.ok(response);
     }
 }

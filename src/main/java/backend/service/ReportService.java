@@ -6,6 +6,9 @@ import backend.dto.VerdictUtil;
 import backend.dto.MatchesResponse;
 import backend.dto.FileInfoDTO;
 import backend.dto.MatchedRegionDTO;
+import backend.dto.BatchSummaryDTO;
+import backend.dto.PairSummaryDTO;
+import backend.exception.BatchNotFoundException;
 import backend.exception.ReportNotFoundException;
 import backend.store.ReportStore;
 import backend.store.ReportStore.ReportData;
@@ -131,6 +134,55 @@ public class ReportService {
         FileInfoDTO fileB = new FileInfoDTO(r.nameB(), r.rawB());
 
         return new MatchesResponse(fileA, fileB, dtoList);
+    }
+
+    /**
+     * Aggregates and returns the batch summary statistics for a given batch ID.
+     *
+     * @param batchId the unique batch identifier
+     * @return BatchSummaryDTO containing aggregated metrics
+     * @throws BatchNotFoundException if the batch ID does not exist
+     */
+    public BatchSummaryDTO getBatchSummary(String batchId) {
+        List<PairSummaryDTO> pairs = reportStore.getBatch(batchId);
+        if (pairs == null) {
+            throw new BatchNotFoundException(batchId);
+        }
+
+        int totalPairs = pairs.size();
+        Set<String> uniqueFiles = new HashSet<>();
+        double highest = 0.0;
+        double lowest = totalPairs > 0 ? 1.0 : 0.0;
+        double sum = 0.0;
+        int suspiciousCount = 0;
+
+        for (PairSummaryDTO pair : pairs) {
+            uniqueFiles.add(pair.a());
+            uniqueFiles.add(pair.b());
+            
+            double h = pair.score();
+            if (h > highest) highest = h;
+            if (h < lowest) lowest = h;
+            sum += h;
+            
+            if (h > VerdictUtil.THRESHOLD_SUSPICIOUS) {
+                suspiciousCount++;
+            }
+        }
+        
+        int totalFiles = uniqueFiles.size();
+        double average = totalPairs > 0 ? sum / totalPairs : 0.0;
+        if (totalPairs == 0) lowest = 0.0;
+
+        return new BatchSummaryDTO(
+                totalFiles,
+                totalPairs,
+                highest,
+                average,
+                lowest,
+                suspiciousCount,
+                pairs
+        );
     }
 
     /** Number of reports currently cached. */

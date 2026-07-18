@@ -54,6 +54,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles the case when a requested batch ID is not found in the cache repository.
+     *
+     * @param ex the batch not found exception
+     * @return response entity containing ApiErrorDTO with HTTP 404 (Not Found)
+     */
+    @ExceptionHandler(BatchNotFoundException.class)
+    public ResponseEntity<ApiErrorDTO> handleBatchNotFound(BatchNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    /**
      * Handles invalid arguments passed to backend services or options checkers.
      *
      * @param ex the illegal argument exception

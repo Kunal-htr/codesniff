@@ -7,6 +7,7 @@ import java.util.List;
  * <p>
  * Wraps a list of pairwise similarity summaries for all evaluated file pairs.
  *
+ * @param batchId unique identifier for this analysis batch
  * @param summary list of pairwise summaries
  */
-public record AnalysisResponse(List<PairSummaryDTO> summary) {}
+public record AnalysisResponse(String batchId, List<PairSummaryDTO> summary) {}

@@ -39,7 +39,7 @@ public class AnalysisService {
      */
     public AnalysisResponse analyze(CodePayload payload) {
         if (payload == null || payload.submissions() == null || payload.submissions().size() < 2) {
-            return new AnalysisResponse(List.of());
+            return new AnalysisResponse(UUID.randomUUID().toString(), List.of());
         }
 
         boolean omit = payload.options() != null && Boolean.TRUE.equals(payload.options().omitComments());
@@ -165,7 +165,10 @@ public class AnalysisService {
                 ));
             }
         }
-        return new AnalysisResponse(out);
+        String batchId = UUID.randomUUID().toString();
+        reportStore.putBatch(batchId, out);
+        
+        return new AnalysisResponse(batchId, out);
     }
 
     /* ===== Helpers ===== */
