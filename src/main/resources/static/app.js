@@ -193,7 +193,55 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     });
 
     if (summary) {
-      summary.textContent = `Compared ${pairs.length} pair(s).`;
+      // 1. Calculate unique files
+      const uniqueFiles = new Set();
+      pairs.forEach(p => {
+        uniqueFiles.add(p.a);
+        uniqueFiles.add(p.b);
+      });
+      const fileCount = uniqueFiles.size;
+      const fileText = fileCount === 1 ? "1 file" : `${fileCount} files`;
+      const pairText = pairs.length === 1 ? "1 pair" : `${pairs.length} pairs`;
+
+      // 2. Tally verdict counts using the existing backend threshold logic
+      const counts = { Clean: 0, Review: 0, Suspicious: 0, High: 0 };
+      pairs.forEach(p => {
+        if (p.score > 0.70) counts.High++;
+        else if (p.score > 0.45) counts.Suspicious++;
+        else if (p.score > 0.25) counts.Review++;
+        else counts.Clean++;
+      });
+
+      // 3. Build badges HTML (only show > 0)
+      let badgesHtml = "";
+      const severities = {
+        Clean: "low",
+        Review: "medium",
+        Suspicious: "medium",
+        High: "high"
+      };
+
+      Object.keys(counts).forEach(v => {
+        if (counts[v] > 0) {
+          // Re-use .sim-pct classes for colors, and simple inline border/bg based on severity
+          let bg = "rgba(100, 116, 139, 0.1)";
+          let border = "rgba(100, 116, 139, 0.2)";
+          if (severities[v] === "low") { bg = "rgba(76, 175, 80, 0.1)"; border = "rgba(76, 175, 80, 0.2)"; }
+          if (severities[v] === "medium") { bg = "rgba(245, 158, 11, 0.1)"; border = "rgba(245, 158, 11, 0.2)"; }
+          if (severities[v] === "high") { bg = "rgba(239, 68, 68, 0.1)"; border = "rgba(239, 68, 68, 0.2)"; }
+
+          badgesHtml += `<span class="diff-badge" style="margin-left: 8px; background: ${bg}; border-color: ${border};">
+            <strong class="sim-pct ${severities[v]}">${v}: ${counts[v]}</strong>
+          </span>`;
+        }
+      });
+
+      summary.innerHTML = `
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span>Analyzed ${fileText} &middot; ${pairText} compared</span>
+          <div style="margin-left: auto;">${badgesHtml}</div>
+        </div>
+      `;
     }
 
     // Scroll to results smoothly
