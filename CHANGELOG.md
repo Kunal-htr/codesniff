@@ -7,6 +7,15 @@ and this project adheres to Semantic Versioning.
 
 ---
 
+## [v0.9] - 2026-07-18
+
+### Added
+- **Operator Divergence Detection**: Integrated JDT AST parsing into the core similarity engine to detect logic-mutating operator swaps (e.g., `>` vs `<`) that structurally identify semantic clones.
+- **HTML & PDF Export Pipelines**: Created `ExportService` with OpenPDF integration for generating offline, stylistically complete PDF and HTML plagiarism reports, mapping directly to `ReportResponse` data.
+- **Identifier Rename Detection**: Expanded the AST builder to map and capture specific identifier literals (variable and method names) that were artificially renamed between two similar files.
+- **Clone Explanation Synthesis Engine**: Developed a rule-based engine in `ReportService` that analyzes scoring deltas (`coverage`, `lcs`, `ast`) combined with operator/rename data to synthesize human-readable classification tags (e.g., `Type-3 Clone (Logic Mutation)`).
+- **Clone Explanation UI Widget**: Updated the frontend side-by-side Diff Viewer to asynchronously fetch and display the new synthesized explanation badges and contributing factors directly within the browser.
+
 ## [v0.8] - 2026-07-18
 
 ### Added
