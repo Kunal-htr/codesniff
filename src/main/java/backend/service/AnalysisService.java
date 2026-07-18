@@ -148,15 +148,18 @@ public class AnalysisService {
                 backend.ast.ASTNode treeA = backend.ast.ASTBuilder.build(aComp.rawCode);
                 backend.ast.ASTNode treeB = backend.ast.ASTBuilder.build(bComp.rawCode);
                 backend.ast.ASTSimilarityResult insensitiveRes = backend.ast.ASTComparator.compare(treeA, treeB, true);
-                double astInsensitive = insensitiveRes.getSimilarity();
-                boolean operatorDivergent = (hyb >= 0.60 && astInsensitive >= 0.90 && (astInsensitive - ast) >= 0.05);
+                
+                String verdictLabel = backend.dto.VerdictUtil.verdict(hyb);
+                boolean isSuspiciousOrHigh = verdictLabel.equals("Suspicious") || verdictLabel.equals("High");
+                boolean operatorDivergent = isSuspiciousOrHigh && insensitiveRes.getOperatorDivergenceCount() >= 1;
 
                 String id = UUID.randomUUID().toString();
                 reportStore.put(id, new ReportStore.ReportData(
                         nullTo(si.name(), "A" + i), nullTo(sj.name(), "A" + j),
                         aComp.rawCode, bComp.rawCode,
                         aComp.normalizedCode, bComp.normalizedCode, aComp.symbolStream, bComp.symbolStream,
-                        aComp.fps, bComp.fps, defaultK, defaultW, omit, jac, cov, lcs, ast, hyb, operatorDivergent
+                        aComp.fps, bComp.fps, defaultK, defaultW, omit, jac, cov, lcs, ast, hyb, 
+                        operatorDivergent, insensitiveRes.getDivergentOperators()
                 ));
 
                 out.add(new PairSummaryDTO(

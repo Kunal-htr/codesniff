@@ -1,5 +1,8 @@
 package backend.ast;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Holds the result of an AST structural comparison produced by
  * {@link ASTComparator#compare(ASTNode, ASTNode)}.
@@ -16,15 +19,25 @@ public class ASTSimilarityResult {
     private final int matchedSubtrees;    // distinct subtree roots matched
     private final int totalNodesA;        // total nodes in tree A
     private final int totalNodesB;        // total nodes in tree B
+    private final int operatorDivergenceCount; // number of near-miss matched nodes with differing operators
+    private final List<String> divergentOperators; // the actual differing operator values (e.g., "> vs <")
 
     public ASTSimilarityResult(double similarity, int matchedNodes, int unmatchedNodes,
                                 int matchedSubtrees, int totalNodesA, int totalNodesB) {
+        this(similarity, matchedNodes, unmatchedNodes, matchedSubtrees, totalNodesA, totalNodesB, 0, Collections.emptyList());
+    }
+
+    public ASTSimilarityResult(double similarity, int matchedNodes, int unmatchedNodes,
+                                int matchedSubtrees, int totalNodesA, int totalNodesB,
+                                int operatorDivergenceCount, List<String> divergentOperators) {
         this.similarity = similarity;
         this.matchedNodes = matchedNodes;
         this.unmatchedNodes = unmatchedNodes;
         this.matchedSubtrees = matchedSubtrees;
         this.totalNodesA = totalNodesA;
         this.totalNodesB = totalNodesB;
+        this.operatorDivergenceCount = operatorDivergenceCount;
+        this.divergentOperators = divergentOperators != null ? List.copyOf(divergentOperators) : Collections.emptyList();
     }
 
     public double getSimilarity()    { return similarity; }
@@ -33,6 +46,14 @@ public class ASTSimilarityResult {
     public int getMatchedSubtrees()  { return matchedSubtrees; }
     public int getTotalNodesA()      { return totalNodesA; }
     public int getTotalNodesB()      { return totalNodesB; }
+    
+    public int getOperatorDivergenceCount() { return operatorDivergenceCount; }
+    public List<String> getDivergentOperators() { return divergentOperators; }
+    
+    public double getOperatorDivergenceRatio() {
+        int denom = matchedNodes + operatorDivergenceCount;
+        return denom == 0 ? 0.0 : (double) operatorDivergenceCount / denom;
+    }
 
     @Override
     public String toString() {

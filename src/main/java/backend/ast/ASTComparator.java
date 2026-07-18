@@ -61,6 +61,9 @@ public class ASTComparator {
         Set<ASTNode> matchedA = new HashSet<>();
         Set<ASTNode> matchedB = new HashSet<>();
         int matchedSubtreeCount = 0;
+        
+        int operatorDivergenceCount = 0;
+        Set<String> divergentOperators = new LinkedHashSet<>();
 
         // --- Phase 1: Greedy subtree matching (largest first) ---
         List<ASTNode> sortedA = new ArrayList<>(nodesA);
@@ -77,6 +80,9 @@ public class ASTComparator {
             // Find best unmatched candidate with matching subtree size
             ASTNode bestMatch = findBestCandidate(nodeA, candidates, matchedB);
             if (bestMatch != null) {
+                if (ignoreOperators) {
+                    operatorDivergenceCount += collectAndCountDivergences(nodeA, bestMatch, divergentOperators);
+                }
                 markSubtree(nodeA, matchedA);
                 markSubtree(bestMatch, matchedB);
                 matchedSubtreeCount++;
@@ -92,6 +98,9 @@ public class ASTComparator {
 
             for (ASTNode candidate : candidates) {
                 if (!matchedB.contains(candidate)) {
+                    if (ignoreOperators) {
+                        operatorDivergenceCount += collectAndCountDivergences(nodeA, candidate, divergentOperators);
+                    }
                     matchedA.add(nodeA);
                     matchedB.add(candidate);
                     break;
@@ -122,7 +131,7 @@ public class ASTComparator {
         int unmatchedCount = (sizeA - matchedA.size()) + (sizeB - matchedB.size());
 
         return new ASTSimilarityResult(similarity, matchedCount, unmatchedCount,
-                matchedSubtreeCount, sizeA, sizeB);
+                matchedSubtreeCount, sizeA, sizeB, operatorDivergenceCount, new ArrayList<>(divergentOperators));
     }
 
     /* ===== Internal Helpers ===== */
@@ -152,6 +161,31 @@ public class ASTComparator {
     private static void markSubtree(ASTNode node, Set<ASTNode> matched) {
         matched.add(node);
         for (ASTNode child : node.getChildren()) markSubtree(child, matched);
+    }
+
+    /** Recursively traverse identical subtrees and collect mismatched operator values. */
+    private static int collectAndCountDivergences(ASTNode a, ASTNode b, Set<String> divergences) {
+        if (a == null || b == null || a.getType() != b.getType()) return 0;
+        int count = 0;
+        
+        ASTNode.NodeType type = a.getType();
+        if (type == ASTNode.NodeType.BINARY_OP || type == ASTNode.NodeType.UNARY_OP || type == ASTNode.NodeType.ASSIGNMENT) {
+            String valA = a.getValue() == null ? "" : a.getValue();
+            String valB = b.getValue() == null ? "" : b.getValue();
+            if (!valA.equals(valB)) {
+                divergences.add(valA + " vs " + valB);
+                count++;
+            }
+        }
+        
+        List<ASTNode> childrenA = a.getChildren();
+        List<ASTNode> childrenB = b.getChildren();
+        if (childrenA.size() == childrenB.size()) {
+            for (int i = 0; i < childrenA.size(); i++) {
+                count += collectAndCountDivergences(childrenA.get(i), childrenB.get(i), divergences);
+            }
+        }
+        return count;
     }
 
     /** Compute node-specific weights to de-emphasize boilerplate constructs. */

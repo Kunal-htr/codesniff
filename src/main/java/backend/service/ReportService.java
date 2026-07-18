@@ -71,6 +71,7 @@ public class ReportService {
                 r.jaccard(), r.coverage(), r.lcs(), r.ast(), r.hybrid(),
                 verdict, verdictDescription,
                 r.operatorDivergent(),
+                r.divergentOperators(),
                 new ReportResponse.Metadata(
                         r.k(), r.window(), r.omitComments(),
                         matchCount, countA, countB

@@ -46,6 +46,7 @@ public class ReportStore {
      * @param ast               the calculated AST structural similarity score (0.0 to 1.0)
      * @param hybrid            the overall aggregated similarity score (0.0 to 1.0)
      * @param operatorDivergent flag indicating if similarity is artificially inflated by operator-only matches
+     * @param divergentOperators list of specific operator divergences found (e.g., "> vs <")
      */
     public record ReportData(
             String nameA, String nameB,
@@ -56,7 +57,7 @@ public class ReportStore {
             List<SimilarityEngine.Fingerprint> fpsB,
             int k, int window, boolean omitComments,
             double jaccard, double coverage, double lcs, double ast, double hybrid,
-            boolean operatorDivergent
+            boolean operatorDivergent, List<String> divergentOperators
     ) {}
 
     /**
