@@ -378,6 +378,12 @@ body {
   line-height: 1.5;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* Hero stats */
 .hero-stats {
   display: flex;
@@ -1527,6 +1533,10 @@ textarea::placeholder {
     padding: 40px 32px;
     gap: 32px;
     text-align: center;
+  }
+
+  .hero-actions {
+    justify-content: center;
   }
 
   .hero-content {

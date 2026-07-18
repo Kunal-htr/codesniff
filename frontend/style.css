@@ -378,6 +378,12 @@ body {
   line-height: 1.5;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* Hero stats */
 .hero-stats {
   display: flex;
@@ -1529,6 +1535,10 @@ textarea::placeholder {
     text-align: center;
   }
 
+  .hero-actions {
+    justify-content: center;
+  }
+
   .hero-content {
     order: 2;
   }
@@ -1730,4 +1740,424 @@ textarea::placeholder {
   opacity: 0;
   transform: translateY(8px);
   transition: all 0.6s ease;
+}
+
+/* ============================================================
+   DIFF VIEWER — Side-by-Side Code Review (v0.7)
+   ============================================================ */
+
+/* --- Overlay backdrop --- */
+.diff-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(10, 18, 30, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+.diff-overlay.hidden {
+  display: none;
+}
+
+/* --- Modal card --- */
+.diff-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 80px rgba(30, 58, 95, 0.22);
+  width: 100%;
+  max-width: 1320px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeInUp 0.25s ease;
+}
+
+/* --- Modal header --- */
+.diff-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+  flex-shrink: 0;
+}
+
+.diff-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--navy);
+}
+
+.diff-modal-title-group svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.diff-modal-title-group h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+}
+
+.diff-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Match count badge */
+.diff-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: rgba(76, 175, 80, 0.12);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  white-space: nowrap;
+}
+
+/* Match navigation controls */
+.diff-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.diff-nav.hidden { display: none; }
+
+.diff-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+}
+.diff-nav-btn:hover:not(:disabled) {
+  background: rgba(30, 58, 95, 0.06);
+  border-color: var(--border-hover);
+  color: var(--navy);
+}
+.diff-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.diff-nav-pos {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Export buttons */
+.diff-exports {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.diff-exports.hidden { display: none; }
+
+.diff-export-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.diff-export-btn:hover {
+  background: rgba(30, 58, 95, 0.06);
+  border-color: var(--border-hover);
+  color: var(--navy);
+}
+
+/* Close button */
+.diff-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.diff-close-btn:hover {
+  background: rgba(30, 58, 95, 0.06);
+  border-color: var(--border-hover);
+  color: var(--navy);
+}
+
+/* --- State messages (loading / error / no-matches) --- */
+.diff-state-msg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.diff-state-msg.hidden { display: none; }
+
+.diff-error-msg { color: #b91c1c; }
+.diff-info-msg  { color: var(--text-secondary); }
+
+/* Mini spinner inside modal */
+.diff-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Diff panels container --- */
+.diff-container {
+  display: flex;
+  gap: 0;
+  min-height: 300px;
+}
+
+.diff-container.hidden { display: none; }
+
+/* Vertical divider between the two panels */
+.diff-gutter-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* --- Individual panel --- */
+.diff-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diff-panel-header {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrollable code area */
+.diff-code-wrap {
+  overflow: auto;
+  flex: 1;
+  min-height: 120px;
+  background: #13181f;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+/* Custom scrollbar for the code panels */
+.diff-code-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.diff-code-wrap::-webkit-scrollbar-track { background: #1a2230; }
+.diff-code-wrap::-webkit-scrollbar-thumb { background: #2e3f55; border-radius: 3px; }
+.diff-code-wrap::-webkit-scrollbar-thumb:hover { background: #3d5470; }
+
+/* --- Per-line rows --- */
+.diff-line {
+  display: flex;
+  white-space: pre;
+  min-height: 21.45px; /* 13px * 1.65 */
+  transition: background 0.15s ease;
+  min-width: 100%;
+  width: fit-content;
+}
+
+.diff-line:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Matched / highlighted line */
+.diff-line.matched {
+  background: rgba(255, 193, 7, 0.11);
+  border-left: 3px solid #f59e0b;
+}
+
+.diff-line.matched:hover {
+  background: rgba(255, 193, 7, 0.16);
+}
+
+/* Line number gutter */
+.line-num {
+  color: #3d5470;
+  width: 3.5em;
+  min-width: 3.5em;
+  text-align: right;
+  padding: 0 10px 0 8px;
+  user-select: none;
+  flex-shrink: 0;
+  border-right: 1px solid #1e2d3d;
+}
+
+.diff-line.matched .line-num {
+  color: #c09020;
+}
+
+/* Code text */
+.line-content {
+  flex: 1;
+  color: #cdd3de;
+  padding: 0 12px;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* ============================================================
+   BATCH OVERVIEW (v0.8)
+   ============================================================ */
+.batch-stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.stat-card-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 16px;
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 2px;
+  width: max-content;
+}
+
+.heatmap-cell {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  background: var(--bg-alt);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.heatmap-cell.diagonal {
+  background: #cbd5e1;
+  cursor: default;
+}
+
+.heatmap-cell:not(.diagonal):hover {
+  transform: scale(1.15);
+  z-index: 10;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.heatmap-cell.low { background: #4caf50; }
+.heatmap-cell.medium { background: #f59e0b; }
+.heatmap-cell.high { background: #ef4444; }
+
+
+/* --- Responsive: stack panels vertically on small screens --- */
+@media (max-width: 768px) {
+  .diff-overlay {
+    padding: 10px;
+  }
+
+  .diff-modal {
+    max-height: calc(100vh - 20px);
+  }
+
+  .diff-modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .diff-container {
+    flex-direction: column;
+  }
+
+  .diff-gutter-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .diff-code-wrap {
+    min-height: 100px;
+  }
 }

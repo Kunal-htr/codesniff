@@ -59,214 +59,98 @@
     <!-- ====== HOME PAGE ====== -->
     <section id="page-home" class="page active">
 
-      <!-- HERO -->
-      <div class="hero">
-        <div class="hero-content">
-          <h1>AI-Based Code<br>Plagiarism Detector</h1>
-          <p class="subtitle">Token-based structural similarity engine powered by K-gram fingerprinting and the
-            Winnowing algorithm to detect copied code even when disguised.</p>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <!-- HERO SECTION -->
+      <div class="hero-minimal">
+        <div class="hero-minimal-content">
+          <h1 class="hero-title">Structural Code Similarity Engine</h1>
+          <p class="hero-subtitle">Detect source code clones and structural plagiarism instantly. Powered by K-gram
+            fingerprinting, Winnowing, and AST-aware hybrid scoring.</p>
+          <div class="hero-actions">
             <button id="btnGetStarted" class="btn btn-primary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-              Get Started
+              Analyze Code
             </button>
             <a href="https://github.com/Kunal-htr/codesniff" target="_blank" rel="noopener" class="btn btn-outline">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-              </svg>
               View Source
             </a>
           </div>
-
-          <!-- Stats -->
-          <div class="hero-stats">
-            <div class="hero-stat">
-              <span class="stat-value">&lt;200ms</span>
-              <span class="stat-label">Avg Response Time</span>
-            </div>
-            <div class="hero-stat">
-              <span class="stat-value">K-Gram</span>
-              <span class="stat-label">Fingerprint Engine</span>
-            </div>
-            <div class="hero-stat">
-              <span class="stat-value">Type 1–4</span>
-              <span class="stat-label">Clone Detection</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-illustration" id="heroIllustration">
-          <img src="assets/4.png" alt="CodeSniff comparison illustration" class="hero-logo" />
         </div>
       </div>
 
-      <!-- FEATURES -->
-      <div class="features">
-        <div class="card">
-          <div class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6" />
-              <polyline points="8 6 2 12 8 18" />
-            </svg>
-          </div>
-          <h3>Structural Analysis</h3>
-          <p>Tokenization & k-gram fingerprints resist renaming, reformatting, and comment-removal tricks.</p>
+      <!-- KEY STATS -->
+      <div class="stats-minimal-row">
+        <div class="stat-minimal-card">
+          <span class="stat-val">K-Gram</span>
+          <span class="stat-lbl">Fingerprint Engine</span>
         </div>
-        <div class="card">
-          <div class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M12 20V10" />
-              <path d="M18 20V4" />
-              <path d="M6 20v-4" />
-            </svg>
-          </div>
-          <h3>Hybrid Scoring</h3>
-          <p>Jaccard similarity combined with coverage metrics delivers reliable, nuanced similarity scores.</p>
+        <div class="stat-minimal-card">
+          <span class="stat-val">AST</span>
+          <span class="stat-lbl">Structural Analysis</span>
         </div>
-        <div class="card">
-          <div class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-            </svg>
-          </div>
-          <h3>Clear Reports</h3>
-          <p>Side-by-side highlights with color-coded severity make reviews fast and transparent.</p>
+        <div class="stat-minimal-card">
+          <span class="stat-val">1–4</span>
+          <span class="stat-lbl">Clone Types Classified</span>
+        </div>
+        <div class="stat-minimal-card">
+          <span class="stat-val">&lt;200ms</span>
+          <span class="stat-lbl">Avg Response Time</span>
         </div>
       </div>
 
-    </section>
-
-    <!-- ====== WHO CAN USE SECTION ====== -->
-    <section class="long-article" id="who-can-use">
-      <div class="container article-inner">
-        <h2>Who can use our anti-plagiarism checker</h2>
-
-        <p class="lead">
-          When it comes to writing, originality is the key. Whether the aim is to deliver the message, reach the target
-          audience,
-          check understanding, or make an impact the work must be authentic. Our plagiarism detector shines when you
-          need
-          fast, reliable checks and clear guidance for correction.
-        </p>
-
-        <div class="cards-row">
-          <article class="info-card">
-            <h3>Plagiarism checker for educators</h3>
-            <p class="brief">
-              Poor paraphrasing, translation tricks, structure rearrangement, synonymization, or hidden symbols seasoned
-              educators have seen it all. Our algorithm recognizes even tricky attempts to disguise plagiarism, making
-              assignment
-              checking routine, fast, and automatable.
-            </p>
-            <div class="full-text hidden">
-              <p>
-                Use class-wide batch scans, obtain side-by-side reports, and export evidence for grading. The tool
-                highlights
-                suspicious passages and links them to sources so you can verify intent quickly.
-              </p>
-            </div>
-          </article>
-
-          <article class="info-card">
-            <h3>Essay plagiarism checker for students</h3>
-            <p class="brief">
-              Any academic assignment from short essays to a final thesis must be original. Accidental copying happens,
-              and
-              a check prevents embarrassing mistakes. Our tool helps students improve by flagging risky passages and
-              explaining fixes.
-            </p>
-            <div class="full-text hidden">
-              <p>
-                Students get explanatory highlights, citation suggestions, and quick tips for paraphrasing correctly.
-                Use it before
-                submission to avoid avoidable penalties.
-              </p>
-            </div>
-          </article>
-
-          <article class="info-card">
-            <h3>Originality detector for writers</h3>
-            <p class="brief">
-              Creators sometimes unintentionally repeat ideas. Running your drafts through an originality checker
-              protects your
-              reputation and uncovers which passages need reworking or extra attribution.
-            </p>
-            <div class="full-text hidden">
-              <p>
-                The tool differentiates between quotations and plagiarism, suggests where to add citations, and helps
-                you preserve
-                your voice while ensuring originality.
-              </p>
-            </div>
-          </article>
-        </div>
-
-        <hr class="article-sep">
-
-        <div class="article-block">
-          <h3>Discover the benefits of using our anti-plagiarism checker</h3>
-
-          <div class="summary">
-            <ul>
-              <li><strong>Academic integrity support:</strong> identify duplications and strengthen institutional
-                credibility.</li>
-              <li><strong>Flexibility:</strong> customizable workflows and integrations for institutional needs.</li>
-              <li><strong>Creative thinking boost:</strong> feedback helps students and writers develop original
-                thought.</li>
-              <li><strong>Assessment simplification:</strong> automated reports with highlighted passages and sources.
-              </li>
-            </ul>
+      <!-- FEATURES GRID -->
+      <div class="features-minimal">
+        <h2 class="section-heading">How it works</h2>
+        <div class="features-minimal-grid">
+          <div class="feature-minimal-card">
+            <h3>Hybrid Scoring Model</h3>
+            <p>Combines Jaccard fingerprint similarity, coverage metrics, LCS statement alignment, and AST structural
+              comparison for nuanced, reliable scores.</p>
           </div>
-
-          <div class="full-article">
-            <p>
-              Our plagiarism-check software operates online no certification required to start. It detects exact
-              matches,
-              paraphrases, synonym swaps, and voice changes. Citations and quoted text are detected and treated
-              correctly so that
-              references are not flagged as plagiarism by default. The product also includes a citation generator and
-              grammar checker
-              to help polish documents before submission.
-            </p>
-
-            <p>
-              Plagiarism ranges from intentional theft to accidental similarity. We flag both: deliberate obfuscation
-              (hidden symbols,
-              Cyrillic swaps, heavy paraphrasing) and unintentional overlap. The tool helps users learn proper
-              referencing and encourages
-              development of original style by identifying problem areas and recommending corrections.
-            </p>
-
-            <p>
-              The consequences of plagiarism can be severe reputational damage, academic penalties, and in some cases
-              legal action.
-              Regular checks limit risk and teach good habits. Use the tool as part of your editorial workflow or course
-              assessment to
-              remain confident in your content's originality.
-            </p>
+          <div class="feature-minimal-card">
+            <h3>Side-by-Side Code Review</h3>
+            <p>Visually highlights matched regions with easy jump-between-matches navigation for rapid manual
+              verification.</p>
+          </div>
+          <div class="feature-minimal-card">
+            <h3>Clone-Type Classification</h3>
+            <p>Automatically flags clones with plain-English explanations (e.g., "Type-3 Clone (Logic Mutation):
+              Operator divergence detected").</p>
+          </div>
+          <div class="feature-minimal-card">
+            <h3>Advanced Detection</h3>
+            <p>Catches identifier renames and operator divergence (e.g., max-finding vs min-finding) that share
+              structure but differ in logic.</p>
+          </div>
+          <div class="feature-minimal-card">
+            <h3>Batch Analytics</h3>
+            <p>Provides a similarity heatmap across all submitted files, verdict-count overviews, and flags suspicious
+              pairs at a glance.</p>
+          </div>
+          <div class="feature-minimal-card">
+            <h3>Multi-Format Exports</h3>
+            <p>Generate and download comprehensive similarity reports in CSV, styled HTML, or PDF formats for easy
+              sharing and grading.</p>
           </div>
         </div>
+      </div>
 
-        <hr class="article-sep">
-
-        <div class="tips">
-          <h3>How a similarity checker helps teachers</h3>
-          <ol>
-            <li>Don't copy & paste large blocks use short quotes and cite sources.</li>
-            <li>Paraphrase correctly and cite the original source.</li>
-            <li>Develop your voice rely on research, then write in your own words.</li>
-            <li>Use the checker before submission to catch accidental similarities.</li>
-          </ol>
+      <!-- WHO IT'S FOR -->
+      <div class="audience-minimal">
+        <h2 class="section-heading">Built for Code Reviewers</h2>
+        <div class="audience-minimal-grid">
+          <div class="audience-minimal-card">
+            <h3>Instructors & TAs</h3>
+            <p>Automate structural similarity checks across dozens of programming assignments. Quickly identify
+              suspicious submissions with clear, visual evidence.</p>
+          </div>
+          <div class="audience-minimal-card">
+            <h3>Developers & Auditors</h3>
+            <p>Audit large codebases for duplicated logic, refactor opportunities, and unintentional copy-pasting using
+              scalable batch analysis.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -396,17 +280,18 @@
           </table>
         </div>
 
-        <div id="batch-overview" class="hidden" style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px;">
+        <div id="batch-overview" class="hidden"
+          style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px;">
           <h3>Batch Overview</h3>
           <div class="batch-stats-cards" id="batchStatsCards">
-             <!-- cards injected via JS -->
+            <!-- cards injected via JS -->
           </div>
-          
+
           <div class="batch-heatmap-container">
-             <h4>Similarity Heatmap</h4>
-             <div class="heatmap-scroll">
-               <div id="batchHeatmap" class="heatmap-grid"></div>
-             </div>
+            <h4>Similarity Heatmap</h4>
+            <div class="heatmap-scroll">
+              <div id="batchHeatmap" class="heatmap-grid"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -460,7 +345,7 @@
           <li>Spring Boot API</li>
           <li>K-Gram Tokenizer</li>
           <li>Winnowing Engine</li>
-          <li>PostgreSQL Database</li>
+          <li>In-Memory Report Cache</li>
         </ul>
       </div>
 
@@ -492,8 +377,10 @@
     <div class="diff-modal">
       <div class="diff-modal-header">
         <div class="diff-modal-title-group">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
           </svg>
           <h3 id="diff-modal-title">Side-by-Side Code Review</h3>
         </div>
@@ -503,34 +390,45 @@
           <!-- Match navigation -->
           <div id="diff-nav" class="diff-nav hidden">
             <button id="diff-prev" class="diff-nav-btn" aria-label="Previous match" title="Previous match">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
             </button>
             <span id="diff-nav-pos" class="diff-nav-pos">1 / 3</span>
             <button id="diff-next" class="diff-nav-btn" aria-label="Next match" title="Next match">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
           </div>
 
           <!-- Export buttons -->
           <div id="diff-exports" class="diff-exports hidden">
             <a id="diff-export-csv" class="diff-export-btn" href="#" download title="Download CSV">CSV</a>
-            <a id="diff-export-html" class="diff-export-btn" href="#" target="_blank" rel="noopener" title="Open HTML report">HTML</a>
+            <a id="diff-export-html" class="diff-export-btn" href="#" target="_blank" rel="noopener"
+              title="Open HTML report">HTML</a>
             <a id="diff-export-pdf" class="diff-export-btn" href="#" download title="Download PDF">PDF</a>
           </div>
 
           <button id="diff-close-btn" class="diff-close-btn" aria-label="Close diff viewer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
       </div>
-      
-      <div id="diff-explanation" class="diff-explanation hidden" style="padding: 12px 24px; border-bottom: 1px solid var(--border); background: var(--bg-alt);">
+
+      <div id="diff-explanation" class="diff-explanation hidden"
+        style="padding: 12px 24px; border-bottom: 1px solid var(--border); background: var(--bg-alt);">
         <div style="margin-bottom: 6px;">
-          <span id="diff-clone-type" class="diff-badge" style="background: rgba(33, 150, 243, 0.1); color: #1976d2; border-color: rgba(33, 150, 243, 0.25);"></span>
+          <span id="diff-clone-type" class="diff-badge"
+            style="background: rgba(33, 150, 243, 0.1); color: #1976d2; border-color: rgba(33, 150, 243, 0.25);"></span>
         </div>
-        <ul id="diff-factors-list" style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary);"></ul>
+        <ul id="diff-factors-list"
+          style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary);"></ul>
       </div>
 
       <div id="diff-loading" class="diff-state-msg">
@@ -539,13 +437,17 @@
       </div>
       <div id="diff-error" class="diff-state-msg diff-error-msg hidden">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <span id="diff-error-text">Failed to load matched regions.</span>
       </div>
       <div id="diff-no-matches" class="diff-state-msg diff-info-msg hidden">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
         <span>No significant matched regions found between these files.</span>
       </div>

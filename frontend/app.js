@@ -193,13 +193,160 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     });
 
     if (summary) {
-      summary.textContent = `Compared ${pairs.length} pair(s).`;
+      // 1. Calculate unique files
+      const uniqueFiles = new Set();
+      pairs.forEach(p => {
+        uniqueFiles.add(p.a);
+        uniqueFiles.add(p.b);
+      });
+      const fileCount = uniqueFiles.size;
+      const fileText = fileCount === 1 ? "1 file" : `${fileCount} files`;
+      const pairText = pairs.length === 1 ? "1 pair" : `${pairs.length} pairs`;
+
+      // 2. Tally verdict counts using the existing backend threshold logic
+      const counts = { Clean: 0, Review: 0, Suspicious: 0, High: 0 };
+      pairs.forEach(p => {
+        if (p.score > 0.70) counts.High++;
+        else if (p.score > 0.45) counts.Suspicious++;
+        else if (p.score > 0.25) counts.Review++;
+        else counts.Clean++;
+      });
+
+      // 3. Build badges HTML (only show > 0)
+      let badgesHtml = "";
+      const severities = {
+        Clean: "low",
+        Review: "medium",
+        Suspicious: "medium",
+        High: "high"
+      };
+
+      Object.keys(counts).forEach(v => {
+        if (counts[v] > 0) {
+          // Re-use .sim-pct classes for colors, and simple inline border/bg based on severity
+          let bg = "rgba(100, 116, 139, 0.1)";
+          let border = "rgba(100, 116, 139, 0.2)";
+          if (severities[v] === "low") { bg = "rgba(76, 175, 80, 0.1)"; border = "rgba(76, 175, 80, 0.2)"; }
+          if (severities[v] === "medium") { bg = "rgba(245, 158, 11, 0.1)"; border = "rgba(245, 158, 11, 0.2)"; }
+          if (severities[v] === "high") { bg = "rgba(239, 68, 68, 0.1)"; border = "rgba(239, 68, 68, 0.2)"; }
+
+          badgesHtml += `<span class="diff-badge" style="margin-left: 8px; background: ${bg}; border-color: ${border};">
+            <strong class="sim-pct ${severities[v]}">${v}: ${counts[v]}</strong>
+          </span>`;
+        }
+      });
+
+      summary.innerHTML = `
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span>Analyzed ${fileText} &middot; ${pairText} compared</span>
+          <div style="margin-left: auto;">${badgesHtml}</div>
+        </div>
+      `;
     }
 
     // Scroll to results smoothly
     setTimeout(() => {
       resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 200);
+  }
+
+  // --- Batch Overview Visuals (v0.8) ---
+  function fetchBatchVisuals(batchId) {
+    fetch(API_BASE + "/api/batch/" + encodeURIComponent(batchId) + "/summary")
+      .then(res => res.json())
+      .then(data => renderBatchVisuals(data))
+      .catch(err => console.error("Failed to fetch batch summary", err));
+  }
+
+  function renderBatchVisuals(data) {
+    const overview = $("batch-overview");
+    const statsContainer = $("batchStatsCards");
+    const heatmap = $("batchHeatmap");
+    if (!overview || !statsContainer || !heatmap) return;
+
+    overview.classList.remove("hidden");
+
+    // 1. Render Stat Cards
+    statsContainer.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-card-title">Highest Similarity</div>
+        <div class="stat-card-value high">${formatPct(data.highestSimilarity || 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">Average Similarity</div>
+        <div class="stat-card-value">${formatPct(data.averageSimilarity || 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">Lowest Similarity</div>
+        <div class="stat-card-value safe">${formatPct(data.lowestSimilarity || 0)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">Suspicious Pairs</div>
+        <div class="stat-card-value ${data.suspiciousPairCount > 0 ? 'high' : 'safe'}">${data.suspiciousPairCount || 0}</div>
+      </div>
+    `;
+
+    // 2. Render Heatmap Grid
+    heatmap.innerHTML = "";
+    
+    // Extract unique files and sort alphabetically
+    const pairs = data.pairs || [];
+    const uniqueSet = new Set();
+    pairs.forEach(p => {
+      uniqueSet.add(p.a);
+      uniqueSet.add(p.b);
+    });
+    const files = Array.from(uniqueSet).sort();
+    const N = files.length;
+    
+    // Fallback if no files exist
+    if (N === 0) return;
+
+    heatmap.style.gridTemplateColumns = `repeat(${N}, 24px)`;
+
+    // Build lookup for fast pair retrieval
+    const pairMap = new Map();
+    pairs.forEach(p => {
+      pairMap.set(`${p.a}|${p.b}`, p);
+      pairMap.set(`${p.b}|${p.a}`, p);
+    });
+
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        const fileI = files[i];
+        const fileJ = files[j];
+        const cell = document.createElement("div");
+
+        if (i === j) {
+          cell.className = "heatmap-cell diagonal";
+          cell.title = fileI;
+        } else {
+          const match = pairMap.get(`${fileI}|${fileJ}`);
+          if (match) {
+            const severity = getSeverity(match.score);
+            cell.className = `heatmap-cell ${severity}`;
+            cell.title = `${fileI} vs ${fileJ}: ${formatPct(match.score)}`;
+            
+            // Apply opacity scaling within severity band for true heatmap feel
+            let intensity = 1.0;
+            if (severity === 'low') intensity = 0.3 + (match.score / 0.3) * 0.7;
+            else if (severity === 'medium') intensity = 0.4 + ((match.score - 0.3) / 0.4) * 0.6;
+            else intensity = 0.5 + ((match.score - 0.7) / 0.3) * 0.5;
+            cell.style.opacity = intensity.toFixed(2);
+
+            if (match.reportId) {
+              cell.addEventListener("click", () => openDiffViewer(match.reportId));
+            }
+          } else {
+            // Missing pair
+            cell.className = "heatmap-cell";
+            cell.style.background = "var(--border)";
+            cell.title = `${fileI} vs ${fileJ}: No data`;
+          }
+        }
+        heatmap.appendChild(cell);
+      }
+    }
   }
 
   // --- file rendering for UI ---
@@ -331,6 +478,7 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
         try {
           const res = await analyzeWithBackend(payload, "code");
           showResults(res.summary || [], opts);
+          if (res.batchId) fetchBatchVisuals(res.batchId);
           showToast("Analysis complete!", "success");
         } catch (e) {
           showToast("Analysis failed. Please try again.", "error");
@@ -372,6 +520,7 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
         try {
           const res = await analyzeWithBackend(payload, "files");
           showResults(res.summary || [], opts);
+          if (res.batchId) fetchBatchVisuals(res.batchId);
           showToast("Analysis complete!", "success");
         } catch (e) {
           showToast("Analysis failed. Please try again.", "error");
@@ -422,7 +571,7 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
       }
       const reportId = row.dataset && row.dataset.reportId;
       if (reportId) {
-        window.open(API_BASE + '/api/report/' + reportId, '_blank');
+        openDiffViewer(reportId);
         return;
       }
       showToast("Backend report not available (demo mode).", "info");
@@ -468,7 +617,7 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
   // ============================================
   // BACKEND STATUS INDICATOR
   // ============================================
-  (function() {
+  (function () {
     const API_BASE_CHECK = typeof API_BASE !== 'undefined'
       ? API_BASE
       : "https://codesniff-backend.azurewebsites.net";
@@ -567,5 +716,277 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     // Start checking when page loads
     document.addEventListener("DOMContentLoaded", checkBackend);
   })();
+
+  // ============================================================
+  // DIFF VIEWER — Side-by-Side Code Review (v0.7)
+  // ============================================================
+
+  // Match navigation state
+  let _diffMatchedLines = [];
+  let _diffMatchIndex = 0;
+
+  /**
+   * Escapes HTML special characters in a string to prevent XSS injection
+   * when inserting raw user code into the DOM. Required before any
+   * user-submitted code content is placed into innerHTML.
+   * (Re-declared here as a local alias to make the diff module self-contained.)
+   */
+  const escHtml = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  /**
+   * Builds the line-by-line HTML for one diff panel.
+   *
+   * @param {string}   rawCode     - The file's raw source code.
+   * @param {number[]} matchedRows - Set of 1-indexed line numbers that are highlighted.
+   * @returns {string} innerHTML string ready to be set on .diff-code-wrap.
+   */
+  function buildPanelHTML(rawCode, matchedRows) {
+    const lines = rawCode.split("\n");
+    // Remove a trailing empty line produced by a final newline
+    if (lines.length > 1 && lines[lines.length - 1] === "") {
+      lines.pop();
+    }
+    const matchSet = new Set(matchedRows);
+    let html = "";
+    for (let i = 0; i < lines.length; i++) {
+      const lineNum = i + 1;
+      const isMatched = matchSet.has(lineNum);
+      const cls = isMatched ? "diff-line matched" : "diff-line";
+      html += `<div class="${cls}"><span class="line-num">${lineNum}</span><span class="line-content">${escHtml(lines[i])}</span></div>`;
+    }
+    return html;
+  }
+
+  /**
+   * Converts a matchedLines region list into a flat Set of 1-indexed line
+   * numbers for either file A (useA=true) or file B (useA=false).
+   */
+  function regionToLineSet(matchedLines, useA) {
+    const set = new Set();
+    (matchedLines || []).forEach(r => {
+      const start = useA ? r.startLineA : r.startLineB;
+      const end   = useA ? r.endLineA   : r.endLineB;
+      for (let ln = start; ln <= end; ln++) {
+        set.add(ln);
+      }
+    });
+    return set;
+  }
+
+  /** Shows one diff state panel and hides the others. */
+  function setDiffState(state) {
+    const loading   = document.getElementById("diff-loading");
+    const error     = document.getElementById("diff-error");
+    const noMatches = document.getElementById("diff-no-matches");
+    const content   = document.getElementById("diff-content");
+    [loading, error, noMatches, content].forEach(el => el && el.classList.add("hidden"));
+    const target = { loading, error, "no-matches": noMatches, content }[state];
+    if (target) target.classList.remove("hidden");
+  }
+
+  /**
+   * Scrolls both diff panels so that matched region at `index` is visible.
+   */
+  function scrollToMatch(index) {
+    if (!_diffMatchedLines.length) return;
+    _diffMatchIndex = index;
+    const region = _diffMatchedLines[_diffMatchIndex];
+    if (!region) return;
+
+    const codeA = document.getElementById("diff-code-a");
+    const codeB = document.getElementById("diff-code-b");
+    if (codeA) {
+      const el = codeA.children[region.startLineA - 1];
+      if (el) el.scrollIntoView({ block: "center" });
+    }
+    if (codeB) {
+      const el = codeB.children[region.startLineB - 1];
+      if (el) el.scrollIntoView({ block: "center" });
+    }
+
+    // Update position indicator and button states
+    const pos = document.getElementById("diff-nav-pos");
+    if (pos) pos.textContent = (_diffMatchIndex + 1) + " / " + _diffMatchedLines.length;
+    const prevBtn = document.getElementById("diff-prev");
+    const nextBtn = document.getElementById("diff-next");
+    if (prevBtn) prevBtn.disabled = _diffMatchIndex === 0;
+    if (nextBtn) nextBtn.disabled = _diffMatchIndex === _diffMatchedLines.length - 1;
+  }
+
+  /**
+   * Opens the diff viewer modal and fetches matched regions for `reportId`.
+   * Called when the user clicks "View" in the results table.
+   */
+  function openDiffViewer(reportId) {
+    const overlay = document.getElementById("diff-overlay");
+    if (!overlay) return;
+
+    // Reset state and show modal
+    overlay.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // prevent page scroll while modal open
+    setDiffState("loading");
+
+    // Reset navigation state
+    _diffMatchedLines = [];
+    _diffMatchIndex = 0;
+
+    // Clear any previous match count badge
+    const badge = document.getElementById("diff-match-count");
+    if (badge) badge.textContent = "";
+
+    // Hide nav and exports until data loads
+    const navDiv = document.getElementById("diff-nav");
+    const exportsDiv = document.getElementById("diff-exports");
+    if (navDiv) navDiv.classList.add("hidden");
+    if (exportsDiv) exportsDiv.classList.add("hidden");
+
+    // Clear explanation
+    const explanationDiv = document.getElementById("diff-explanation");
+    if (explanationDiv) explanationDiv.classList.add("hidden");
+
+    // Fetch both the /matches endpoint and the report metadata
+    Promise.all([
+      fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/matches").then(res => {
+        if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
+        return res.json();
+      }),
+      fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId)).then(res => {
+        if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
+        return res.json();
+      })
+    ])
+    .then(([data, reportData]) => {
+        const fileA = data.fileA || {};
+        const fileB = data.fileB || {};
+        const matchedLines = data.matchedLines || [];
+
+        // Update panel headers with file names
+        const headerA = document.getElementById("diff-header-a");
+        const headerB = document.getElementById("diff-header-b");
+        if (headerA) headerA.textContent = fileA.name || "File A";
+        if (headerB) headerB.textContent = fileB.name || "File B";
+
+        // Update match count badge
+        if (badge) {
+          if (matchedLines.length > 0) {
+            badge.textContent = matchedLines.length + " matched region" + (matchedLines.length !== 1 ? "s" : "");
+          } else {
+            badge.textContent = "";
+          }
+        }
+
+        if (matchedLines.length === 0) {
+          setDiffState("no-matches");
+          return;
+        }
+
+        // Render Clone Explanation if present
+        if (explanationDiv && reportData && reportData.explanation) {
+          const exp = reportData.explanation;
+          const typeBadge = document.getElementById("diff-clone-type");
+          const factorsList = document.getElementById("diff-factors-list");
+          
+          if (typeBadge) typeBadge.textContent = exp.cloneType || "Unclassified Clone";
+          
+          if (factorsList) {
+            factorsList.innerHTML = "";
+            if (exp.contributingFactors && exp.contributingFactors.length > 0) {
+              exp.contributingFactors.forEach(factor => {
+                const li = document.createElement("li");
+                li.textContent = factor;
+                factorsList.appendChild(li);
+              });
+            } else {
+              const li = document.createElement("li");
+              li.textContent = "No specific contributing factors detected.";
+              li.style.fontStyle = "italic";
+              factorsList.appendChild(li);
+            }
+          }
+          explanationDiv.classList.remove("hidden");
+        }
+
+        // Build and inject code panels
+        const codeA = document.getElementById("diff-code-a");
+        const codeB = document.getElementById("diff-code-b");
+        if (codeA) codeA.innerHTML = buildPanelHTML(fileA.rawCode || "", regionToLineSet(matchedLines, true));
+        if (codeB) codeB.innerHTML = buildPanelHTML(fileB.rawCode || "", regionToLineSet(matchedLines, false));
+
+        setDiffState("content");
+
+        // --- Wire export URLs ---
+        const csvLink = document.getElementById("diff-export-csv");
+        const htmlLink = document.getElementById("diff-export-html");
+        const pdfLink = document.getElementById("diff-export-pdf");
+        const exportBase = API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/export?format=";
+        if (csvLink) csvLink.href = exportBase + "csv";
+        if (htmlLink) htmlLink.href = exportBase + "html";
+        if (pdfLink) pdfLink.href = exportBase + "pdf";
+        if (exportsDiv) exportsDiv.classList.remove("hidden");
+
+        // --- Wire match navigation ---
+        _diffMatchedLines = matchedLines;
+        _diffMatchIndex = 0;
+        if (matchedLines.length > 0 && navDiv) {
+          navDiv.classList.remove("hidden");
+          // Scroll to first match and update indicator
+          setTimeout(() => scrollToMatch(0), 80);
+        }
+      })
+      .catch(err => {
+        const errText = document.getElementById("diff-error-text");
+        if (errText) errText.textContent = "Failed to load matched regions: " + (err.message || "Unknown error");
+        setDiffState("error");
+      });
+  }
+
+  /** Closes the diff viewer modal and restores page scroll. */
+  function closeDiffViewer() {
+    const overlay = document.getElementById("diff-overlay");
+    if (overlay) overlay.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  // Wire up close button and overlay backdrop click
+  document.addEventListener("DOMContentLoaded", () => {
+    const closeBtn = document.getElementById("diff-close-btn");
+    const overlay  = document.getElementById("diff-overlay");
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeDiffViewer);
+    }
+
+    // Match navigation buttons
+    const prevBtn = document.getElementById("diff-prev");
+    const nextBtn = document.getElementById("diff-next");
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        if (_diffMatchIndex > 0) scrollToMatch(_diffMatchIndex - 1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        if (_diffMatchIndex < _diffMatchedLines.length - 1) scrollToMatch(_diffMatchIndex + 1);
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener("click", e => {
+        // Close only if the click is directly on the backdrop (not the modal card)
+        if (e.target === overlay) closeDiffViewer();
+      });
+    }
+
+    // Also close on Escape key
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        const ov = document.getElementById("diff-overlay");
+        if (ov && !ov.classList.contains("hidden")) closeDiffViewer();
+      }
+    });
+  });
 
 })();
