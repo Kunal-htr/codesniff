@@ -344,7 +344,7 @@ Live in ~50 seconds ✅
 | Module | Name | Status | Version |
 |---|---|---|---|
 | Module 1 | Similarity Engine | ✅ Complete | v0.5 |
-| Module 2 | Report & Visualization | 🔄 Planned | v1.0 |
+| Module 2 | Report & Visualization | ✅ Complete | v1.0 |
 | Module 3 | Login, Account Creation & Authorization | 🔄 Planned | v1.5 |
 | Module 4 | Database & Storage Integration | 🔄 Planned | v2.0 |
 | Module 5 | Future AI Integration | 🔄 Planned | v2.5 |
@@ -360,7 +360,6 @@ This project is licensed under the MIT License.
 ## 🙏 Acknowledgements
 
 - [Spring Boot](https://spring.io/projects/spring-boot)
-- [Supabase](https://supabase.com)
 - [Vercel](https://vercel.com)
 - [Azure](https://azure.microsoft.com)
 - Winnowing Algorithm — Schleimer, Wilkerson, Aiken (2003)
