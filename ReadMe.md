@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-v0.6-blue?style=for-the-badge" alt="version"/>
+<img src="https://img.shields.io/badge/version-v1.0-blue?style=for-the-badge" alt="version"/>
 <img src="https://img.shields.io/badge/java-17-orange?style=for-the-badge&logo=java" alt="java"/>
 <img src="https://img.shields.io/badge/spring%20boot-3.3.5-green?style=for-the-badge&logo=springboot" alt="spring boot"/>
 <img src="https://img.shields.io/badge/license-MIT-purple?style=for-the-badge" alt="license"/>
@@ -34,7 +34,7 @@ and more in future releases through AI-powered semantic analysis.
 
 ## 🚀 Features
 
-> ⚠️ **Current Version (v0.5):** Supports Java source files only. Multi-language support planned for v2.5.
+> ⚠️ **Current Version (v1.0):** Supports Java source files only. Multi-language support planned for future releases.
 
 - 🔍 **Token-based similarity detection** using K-gram algorithm
 - 🪟 **Winnowing algorithm** for efficient fingerprint selection
@@ -67,7 +67,7 @@ and more in future releases through AI-powered semantic analysis.
 ### Database & Infrastructure
 | Technology | Purpose |
 |---|---|
-| PostgreSQL (Supabase) | Database |
+| In-Memory Cache | Temporary report storage |
 | GitHub Actions | CI/CD pipeline |
 | Nginx | Reverse proxy |
 
@@ -102,13 +102,7 @@ User Browser
 │  ┌────────▼────────┐    │
 │  │CodeNormalizer    │    │
 │  └─────────────────┘    │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────┐
-│  Supabase        │  PostgreSQL Database
-│  (Database)      │
-└─────────────────┘
+└─────────────────────────┘
 ```
 
 ---
@@ -155,7 +149,6 @@ User Browser
 ### Prerequisites
 - Java 17+
 - Maven 3.9+
-- PostgreSQL (or Supabase account)
 
 ### Installation
 ```bash
@@ -174,11 +167,6 @@ mvn clean install
 Create `src/main/resources/application.properties`:
 ```properties
 server.port=9090
-spring.datasource.url=jdbc:postgresql://your-db-host:5432/postgres
-spring.datasource.username=your-username
-spring.datasource.password=your-password
-spring.datasource.driver-class-name=org.postgresql.Driver
-spring.jpa.hibernate.ddl-auto=update
 ```
 
 ### Run Locally
@@ -270,7 +258,7 @@ CodeSniff is alive!
 
 ## 🛡️ Input Validation & Error Handling
 
-CodeSniff v0.6 introduces strict input validation and centralized exception handling. Requests are validated using **Jakarta Bean Validation** before reaching the analysis engine. 
+CodeSniff v1.0 introduces strict input validation and centralized exception handling. Requests are validated using **Jakarta Bean Validation** before reaching the analysis engine. 
 
 ### Constraints:
 * `submissions`: Must have between **1 and 200** files per batch.
