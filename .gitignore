@@ -5,6 +5,9 @@ target/
 .idea/
 *.iml
 .vscode/
+.settings/
+.classpath
+.project
 
 # Sensitive config - NEVER commit
 src/main/resources/application.properties
