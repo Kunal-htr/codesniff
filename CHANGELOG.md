@@ -7,6 +7,14 @@ and this project adheres to Semantic Versioning.
 
 ---
 
+## [v0.8] - 2026-07-18
+
+### Added
+- **Batch Summary Endpoint**: Implemented a new backend REST endpoint (`GET /api/batch/{id}/summary`) that returns aggregate similarity metrics (`BatchSummaryDTO`) for an entire batch of analyzed files.
+- **Batch State Management**: Updated `ReportStore` and `AnalysisService` to assign and cache a unique UUID `batchId` for grouped pairwise comparisons during an analysis run.
+- **Visual Score Breakdown Chart**: Added responsive frontend stat cards to the batch overview section to immediately display highest, lowest, average similarities, and the total count of suspicious pairs.
+- **Similarity Heatmap Grid**: Developed an interactive, dependency-free CSS-grid heatmap (N×N cells) mapped to the batch size. Cells dynamically display severity color bands (green/orange/red) with score-based opacity scaling and click-to-view diff integrations.
+
 ## [v0.7] - 2026-07-18
 
 ### Added
