@@ -220,7 +220,7 @@ public class ReportService {
             factors.add("Identifiers renamed (" + r.identifierRenames().size() + " variables)");
         }
         if (r.operatorDivergent() && !r.divergentOperators().isEmpty()) {
-            factors.add("Comparison operators modified (e.g., " + r.divergentOperators().get(0) + ")");
+            factors.add("Operators modified (e.g., " + r.divergentOperators().get(0) + ")");
         }
         if (r.coverage() - r.lcs() >= 0.10 || r.ast() < 0.80) {
             factors.add("Statements inserted, removed, or reordered");

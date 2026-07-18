@@ -752,18 +752,22 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     const badge = document.getElementById("diff-match-count");
     if (badge) badge.textContent = "";
 
-    // Fetch the /matches endpoint
-    fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/matches")
-      .then(res => {
-        if (!res.ok) {
-          return res.json().catch(() => null).then(body => {
-            const msg = (body && body.message) ? body.message : "HTTP " + res.status;
-            throw new Error(msg);
-          });
-        }
+    // Clear explanation
+    const explanationDiv = document.getElementById("diff-explanation");
+    if (explanationDiv) explanationDiv.classList.add("hidden");
+
+    // Fetch both the /matches endpoint and the report metadata
+    Promise.all([
+      fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/matches").then(res => {
+        if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
+        return res.json();
+      }),
+      fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId)).then(res => {
+        if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
         return res.json();
       })
-      .then(data => {
+    ])
+    .then(([data, reportData]) => {
         const fileA = data.fileA || {};
         const fileB = data.fileB || {};
         const matchedLines = data.matchedLines || [];
@@ -786,6 +790,32 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
         if (matchedLines.length === 0) {
           setDiffState("no-matches");
           return;
+        }
+
+        // Render Clone Explanation if present
+        if (explanationDiv && reportData && reportData.explanation) {
+          const exp = reportData.explanation;
+          const typeBadge = document.getElementById("diff-clone-type");
+          const factorsList = document.getElementById("diff-factors-list");
+          
+          if (typeBadge) typeBadge.textContent = exp.cloneType || "Unclassified Clone";
+          
+          if (factorsList) {
+            factorsList.innerHTML = "";
+            if (exp.contributingFactors && exp.contributingFactors.length > 0) {
+              exp.contributingFactors.forEach(factor => {
+                const li = document.createElement("li");
+                li.textContent = factor;
+                factorsList.appendChild(li);
+              });
+            } else {
+              const li = document.createElement("li");
+              li.textContent = "No specific contributing factors detected.";
+              li.style.fontStyle = "italic";
+              factorsList.appendChild(li);
+            }
+          }
+          explanationDiv.classList.remove("hidden");
         }
 
         // Build and inject code panels
