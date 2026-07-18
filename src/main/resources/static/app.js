@@ -673,6 +673,10 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
   // DIFF VIEWER — Side-by-Side Code Review (v0.7)
   // ============================================================
 
+  // Match navigation state
+  let _diffMatchedLines = [];
+  let _diffMatchIndex = 0;
+
   /**
    * Escapes HTML special characters in a string to prevent XSS injection
    * when inserting raw user code into the DOM. Required before any
@@ -736,6 +740,35 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
   }
 
   /**
+   * Scrolls both diff panels so that matched region at `index` is visible.
+   */
+  function scrollToMatch(index) {
+    if (!_diffMatchedLines.length) return;
+    _diffMatchIndex = index;
+    const region = _diffMatchedLines[_diffMatchIndex];
+    if (!region) return;
+
+    const codeA = document.getElementById("diff-code-a");
+    const codeB = document.getElementById("diff-code-b");
+    if (codeA) {
+      const el = codeA.children[region.startLineA - 1];
+      if (el) el.scrollIntoView({ block: "center" });
+    }
+    if (codeB) {
+      const el = codeB.children[region.startLineB - 1];
+      if (el) el.scrollIntoView({ block: "center" });
+    }
+
+    // Update position indicator and button states
+    const pos = document.getElementById("diff-nav-pos");
+    if (pos) pos.textContent = (_diffMatchIndex + 1) + " / " + _diffMatchedLines.length;
+    const prevBtn = document.getElementById("diff-prev");
+    const nextBtn = document.getElementById("diff-next");
+    if (prevBtn) prevBtn.disabled = _diffMatchIndex === 0;
+    if (nextBtn) nextBtn.disabled = _diffMatchIndex === _diffMatchedLines.length - 1;
+  }
+
+  /**
    * Opens the diff viewer modal and fetches matched regions for `reportId`.
    * Called when the user clicks "View" in the results table.
    */
@@ -748,9 +781,19 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     document.body.style.overflow = "hidden"; // prevent page scroll while modal open
     setDiffState("loading");
 
+    // Reset navigation state
+    _diffMatchedLines = [];
+    _diffMatchIndex = 0;
+
     // Clear any previous match count badge
     const badge = document.getElementById("diff-match-count");
     if (badge) badge.textContent = "";
+
+    // Hide nav and exports until data loads
+    const navDiv = document.getElementById("diff-nav");
+    const exportsDiv = document.getElementById("diff-exports");
+    if (navDiv) navDiv.classList.add("hidden");
+    if (exportsDiv) exportsDiv.classList.add("hidden");
 
     // Clear explanation
     const explanationDiv = document.getElementById("diff-explanation");
@@ -826,15 +869,23 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
 
         setDiffState("content");
 
-        // Scroll the first matched line of panel A into view after render
-        if (matchedLines[0]) {
-          const firstMatchLineA = matchedLines[0].startLineA;
-          if (codeA) {
-            const firstMatchedEl = codeA.children[firstMatchLineA - 1];
-            if (firstMatchedEl) {
-              setTimeout(() => firstMatchedEl.scrollIntoView({ block: "center" }), 80);
-            }
-          }
+        // --- Wire export URLs ---
+        const csvLink = document.getElementById("diff-export-csv");
+        const htmlLink = document.getElementById("diff-export-html");
+        const pdfLink = document.getElementById("diff-export-pdf");
+        const exportBase = API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/export?format=";
+        if (csvLink) csvLink.href = exportBase + "csv";
+        if (htmlLink) htmlLink.href = exportBase + "html";
+        if (pdfLink) pdfLink.href = exportBase + "pdf";
+        if (exportsDiv) exportsDiv.classList.remove("hidden");
+
+        // --- Wire match navigation ---
+        _diffMatchedLines = matchedLines;
+        _diffMatchIndex = 0;
+        if (matchedLines.length > 0 && navDiv) {
+          navDiv.classList.remove("hidden");
+          // Scroll to first match and update indicator
+          setTimeout(() => scrollToMatch(0), 80);
         }
       })
       .catch(err => {
@@ -858,6 +909,20 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
 
     if (closeBtn) {
       closeBtn.addEventListener("click", closeDiffViewer);
+    }
+
+    // Match navigation buttons
+    const prevBtn = document.getElementById("diff-prev");
+    const nextBtn = document.getElementById("diff-next");
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        if (_diffMatchIndex > 0) scrollToMatch(_diffMatchIndex - 1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        if (_diffMatchIndex < _diffMatchedLines.length - 1) scrollToMatch(_diffMatchIndex + 1);
+      });
     }
 
     if (overlay) {

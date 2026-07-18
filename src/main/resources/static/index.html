@@ -499,6 +499,25 @@
         </div>
         <div class="diff-modal-actions">
           <span id="diff-match-count" class="diff-badge"></span>
+
+          <!-- Match navigation -->
+          <div id="diff-nav" class="diff-nav hidden">
+            <button id="diff-prev" class="diff-nav-btn" aria-label="Previous match" title="Previous match">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <span id="diff-nav-pos" class="diff-nav-pos">1 / 3</span>
+            <button id="diff-next" class="diff-nav-btn" aria-label="Next match" title="Next match">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <!-- Export buttons -->
+          <div id="diff-exports" class="diff-exports hidden">
+            <a id="diff-export-csv" class="diff-export-btn" href="#" download title="Download CSV">CSV</a>
+            <a id="diff-export-html" class="diff-export-btn" href="#" target="_blank" rel="noopener" title="Open HTML report">HTML</a>
+            <a id="diff-export-pdf" class="diff-export-btn" href="#" download title="Download PDF">PDF</a>
+          </div>
+
           <button id="diff-close-btn" class="diff-close-btn" aria-label="Close diff viewer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
