@@ -64,6 +64,7 @@ public class ASTComparator {
         
         int operatorDivergenceCount = 0;
         Set<String> divergentOperators = new LinkedHashSet<>();
+        Set<String> identifierRenames = new LinkedHashSet<>();
 
         // --- Phase 1: Greedy subtree matching (largest first) ---
         List<ASTNode> sortedA = new ArrayList<>(nodesA);
@@ -83,6 +84,7 @@ public class ASTComparator {
                 if (ignoreOperators) {
                     operatorDivergenceCount += collectAndCountDivergences(nodeA, bestMatch, divergentOperators);
                 }
+                extractRenames(nodeA, bestMatch, identifierRenames);
                 markSubtree(nodeA, matchedA);
                 markSubtree(bestMatch, matchedB);
                 matchedSubtreeCount++;
@@ -101,6 +103,7 @@ public class ASTComparator {
                     if (ignoreOperators) {
                         operatorDivergenceCount += collectAndCountDivergences(nodeA, candidate, divergentOperators);
                     }
+                    extractRenames(nodeA, candidate, identifierRenames);
                     matchedA.add(nodeA);
                     matchedB.add(candidate);
                     break;
@@ -131,7 +134,7 @@ public class ASTComparator {
         int unmatchedCount = (sizeA - matchedA.size()) + (sizeB - matchedB.size());
 
         return new ASTSimilarityResult(similarity, matchedCount, unmatchedCount,
-                matchedSubtreeCount, sizeA, sizeB, operatorDivergenceCount, new ArrayList<>(divergentOperators));
+                matchedSubtreeCount, sizeA, sizeB, operatorDivergenceCount, new ArrayList<>(divergentOperators), new ArrayList<>(identifierRenames));
     }
 
     /* ===== Internal Helpers ===== */
@@ -186,6 +189,27 @@ public class ASTComparator {
             }
         }
         return count;
+    }
+
+    /** Recursively traverse identical subtrees and collect mismatched identifiers. */
+    private static void extractRenames(ASTNode a, ASTNode b, Set<String> renames) {
+        if (a == null || b == null || a.getType() != b.getType()) return;
+        
+        if (a.getType() == ASTNode.NodeType.IDENTIFIER) {
+            String valA = a.getValue() == null ? "" : a.getValue();
+            String valB = b.getValue() == null ? "" : b.getValue();
+            if (!valA.isEmpty() && !valB.isEmpty() && !valA.equals(valB)) {
+                renames.add(valA + " -> " + valB);
+            }
+        }
+        
+        List<ASTNode> childrenA = a.getChildren();
+        List<ASTNode> childrenB = b.getChildren();
+        if (childrenA.size() == childrenB.size()) {
+            for (int i = 0; i < childrenA.size(); i++) {
+                extractRenames(childrenA.get(i), childrenB.get(i), renames);
+            }
+        }
     }
 
     /** Compute node-specific weights to de-emphasize boilerplate constructs. */

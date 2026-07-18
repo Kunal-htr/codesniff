@@ -72,6 +72,7 @@ public class ReportService {
                 verdict, verdictDescription,
                 r.operatorDivergent(),
                 r.divergentOperators(),
+                r.identifierRenames(),
                 new ReportResponse.Metadata(
                         r.k(), r.window(), r.omitComments(),
                         matchCount, countA, countB

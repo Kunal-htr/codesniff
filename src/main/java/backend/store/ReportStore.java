@@ -47,6 +47,7 @@ public class ReportStore {
      * @param hybrid            the overall aggregated similarity score (0.0 to 1.0)
      * @param operatorDivergent flag indicating if similarity is artificially inflated by operator-only matches
      * @param divergentOperators list of specific operator divergences found (e.g., "> vs <")
+     * @param identifierRenames list of renamed identifiers (e.g., "student -> user")
      */
     public record ReportData(
             String nameA, String nameB,
@@ -57,7 +58,8 @@ public class ReportStore {
             List<SimilarityEngine.Fingerprint> fpsB,
             int k, int window, boolean omitComments,
             double jaccard, double coverage, double lcs, double ast, double hybrid,
-            boolean operatorDivergent, List<String> divergentOperators
+            boolean operatorDivergent, List<String> divergentOperators,
+            List<String> identifierRenames
     ) {}
 
     /**

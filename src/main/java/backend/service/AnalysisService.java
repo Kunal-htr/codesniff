@@ -159,7 +159,8 @@ public class AnalysisService {
                         aComp.rawCode, bComp.rawCode,
                         aComp.normalizedCode, bComp.normalizedCode, aComp.symbolStream, bComp.symbolStream,
                         aComp.fps, bComp.fps, defaultK, defaultW, omit, jac, cov, lcs, ast, hyb, 
-                        operatorDivergent, insensitiveRes.getDivergentOperators()
+                        operatorDivergent, insensitiveRes.getDivergentOperators(),
+                        insensitiveRes.getIdentifierRenames()
                 ));
 
                 out.add(new PairSummaryDTO(

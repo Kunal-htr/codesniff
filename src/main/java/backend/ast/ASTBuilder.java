@@ -106,7 +106,7 @@ public class ASTBuilder {
         } else if (jpNode instanceof LiteralExpr) {
             current = new ASTNode(ASTNode.NodeType.LITERAL, jpNode.getClass().getSimpleName());
         } else if (jpNode instanceof NameExpr) {
-            current = new ASTNode(ASTNode.NodeType.IDENTIFIER);
+            current = new ASTNode(ASTNode.NodeType.IDENTIFIER, ((NameExpr) jpNode).getNameAsString());
         } else if (jpNode instanceof ClassOrInterfaceType) {
             current = new ASTNode(ASTNode.NodeType.TYPE_REF, ((ClassOrInterfaceType) jpNode).getNameAsString());
         } else if (jpNode instanceof Parameter) {

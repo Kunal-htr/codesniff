@@ -18,6 +18,7 @@ package backend.dto;
  * @param verdictDescription human-readable explanation of the verdict
  * @param operatorDivergent flag indicating if similarity is driven primarily by operator matching
  * @param divergentOperators list of the divergent operator pairs found (e.g. "> vs <")
+ * @param identifierRenames list of renamed identifiers (e.g. "student -> user")
  * @param metadata          parameters and metadata details for this comparison
  */
 public record ReportResponse(
@@ -32,6 +33,7 @@ public record ReportResponse(
         String verdictDescription,
         boolean operatorDivergent,
         java.util.List<String> divergentOperators,
+        java.util.List<String> identifierRenames,
         Metadata metadata
 ) {
 

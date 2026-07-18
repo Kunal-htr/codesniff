@@ -21,15 +21,23 @@ public class ASTSimilarityResult {
     private final int totalNodesB;        // total nodes in tree B
     private final int operatorDivergenceCount; // number of near-miss matched nodes with differing operators
     private final List<String> divergentOperators; // the actual differing operator values (e.g., "> vs <")
+    private final List<String> identifierRenames; // renamed variables/methods in structurally matched subtrees
 
     public ASTSimilarityResult(double similarity, int matchedNodes, int unmatchedNodes,
                                 int matchedSubtrees, int totalNodesA, int totalNodesB) {
-        this(similarity, matchedNodes, unmatchedNodes, matchedSubtrees, totalNodesA, totalNodesB, 0, Collections.emptyList());
+        this(similarity, matchedNodes, unmatchedNodes, matchedSubtrees, totalNodesA, totalNodesB, 0, Collections.emptyList(), Collections.emptyList());
     }
 
     public ASTSimilarityResult(double similarity, int matchedNodes, int unmatchedNodes,
                                 int matchedSubtrees, int totalNodesA, int totalNodesB,
                                 int operatorDivergenceCount, List<String> divergentOperators) {
+        this(similarity, matchedNodes, unmatchedNodes, matchedSubtrees, totalNodesA, totalNodesB, operatorDivergenceCount, divergentOperators, Collections.emptyList());
+    }
+
+    public ASTSimilarityResult(double similarity, int matchedNodes, int unmatchedNodes,
+                                int matchedSubtrees, int totalNodesA, int totalNodesB,
+                                int operatorDivergenceCount, List<String> divergentOperators,
+                                List<String> identifierRenames) {
         this.similarity = similarity;
         this.matchedNodes = matchedNodes;
         this.unmatchedNodes = unmatchedNodes;
@@ -38,6 +46,7 @@ public class ASTSimilarityResult {
         this.totalNodesB = totalNodesB;
         this.operatorDivergenceCount = operatorDivergenceCount;
         this.divergentOperators = divergentOperators != null ? List.copyOf(divergentOperators) : Collections.emptyList();
+        this.identifierRenames = identifierRenames != null ? List.copyOf(identifierRenames) : Collections.emptyList();
     }
 
     public double getSimilarity()    { return similarity; }
@@ -49,6 +58,7 @@ public class ASTSimilarityResult {
     
     public int getOperatorDivergenceCount() { return operatorDivergenceCount; }
     public List<String> getDivergentOperators() { return divergentOperators; }
+    public List<String> getIdentifierRenames() { return identifierRenames; }
     
     public double getOperatorDivergenceRatio() {
         int denom = matchedNodes + operatorDivergenceCount;
