@@ -10,6 +10,8 @@ import backend.dto.MatchesResponse;
 import backend.dto.BatchSummaryDTO;
 import backend.service.AnalysisService;
 import backend.service.ReportService;
+import backend.service.ExportService;
+import org.springframework.http.HttpHeaders;
 
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -34,10 +36,12 @@ public class AnalyzeController {
 
     private final AnalysisService analysisService;
     private final ReportService reportService;
+    private final ExportService exportService;
 
-    public AnalyzeController(AnalysisService analysisService, ReportService reportService) {
+    public AnalyzeController(AnalysisService analysisService, ReportService reportService, ExportService exportService) {
         this.analysisService = analysisService;
         this.reportService = reportService;
+        this.exportService = exportService;
     }
 
     /**
@@ -153,5 +157,43 @@ public class AnalyzeController {
     public ResponseEntity<BatchSummaryDTO> batchSummary(@PathVariable("id") String id) {
         BatchSummaryDTO response = reportService.getBatchSummary(id);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Exports a detailed pairwise report in multiple formats.
+     *
+     * @param id the unique UUID of the generated report
+     * @param format the desired export format (json, csv, html, pdf)
+     * @return the report in the requested format
+     * @throws backend.exception.ReportNotFoundException if the report ID does not exist in cache
+     * @throws IllegalArgumentException if the format is unsupported
+     */
+    @GetMapping(path = "/report/{id}/export")
+    public ResponseEntity<?> exportReport(@PathVariable("id") String id, @RequestParam(name = "format", defaultValue = "json") String format) {
+        ReportResponse report = reportService.getReport(id);
+
+        switch (format.toLowerCase()) {
+            case "json":
+                return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(report);
+            case "csv":
+                String csv = exportService.generateCsv(report);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report-" + id + ".csv\"")
+                        .contentType(MediaType.parseMediaType("text/csv"))
+                        .body(csv);
+            case "html":
+                String html = exportService.generateHtml(report);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.TEXT_HTML)
+                        .body(html);
+            case "pdf":
+                byte[] pdf = exportService.generatePdf(report);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report-" + id + ".pdf\"")
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body(pdf);
+            default:
+                throw new IllegalArgumentException("Unsupported format: " + format);
+        }
     }
 }
