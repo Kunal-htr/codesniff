@@ -3,6 +3,8 @@ package backend.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -18,11 +20,22 @@ public class CorsConfig {
                                 "https://codesniff.tech",
                                 "https://www.codesniff.tech",
                                 "https://codesniff.vercel.app",
-                                "https://codesniff-backend.azurewebsites.net"
-                        )
+                                "https://codesniff-backend.azurewebsites.net")
                         .allowedMethods("POST", "GET", "OPTIONS", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);
+            }
+
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                registry.addViewController("/").setViewName("forward:/index.html");
+            }
+
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                // Serve all static files directly from the external frontend/ folder
+                registry.addResourceHandler("/**")
+                        .addResourceLocations("file:frontend/");
             }
         };
     }
