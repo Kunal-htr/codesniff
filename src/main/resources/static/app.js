@@ -422,7 +422,7 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
       }
       const reportId = row.dataset && row.dataset.reportId;
       if (reportId) {
-        window.open(API_BASE + '/api/report/' + reportId, '_blank');
+        openDiffViewer(reportId);
         return;
       }
       showToast("Backend report not available (demo mode).", "info");
@@ -567,5 +567,182 @@ const API_BASE = window.location.hostname === "localhost" || window.location.hos
     // Start checking when page loads
     document.addEventListener("DOMContentLoaded", checkBackend);
   })();
+
+  // ============================================================
+  // DIFF VIEWER — Side-by-Side Code Review (v0.7)
+  // ============================================================
+
+  /**
+   * Escapes HTML special characters in a string to prevent XSS injection
+   * when inserting raw user code into the DOM. Required before any
+   * user-submitted code content is placed into innerHTML.
+   * (Re-declared here as a local alias to make the diff module self-contained.)
+   */
+  const escHtml = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  /**
+   * Builds the line-by-line HTML for one diff panel.
+   *
+   * @param {string}   rawCode     - The file's raw source code.
+   * @param {number[]} matchedRows - Set of 1-indexed line numbers that are highlighted.
+   * @returns {string} innerHTML string ready to be set on .diff-code-wrap.
+   */
+  function buildPanelHTML(rawCode, matchedRows) {
+    const lines = rawCode.split("\n");
+    // Remove a trailing empty line produced by a final newline
+    if (lines.length > 1 && lines[lines.length - 1] === "") {
+      lines.pop();
+    }
+    const matchSet = new Set(matchedRows);
+    let html = "";
+    for (let i = 0; i < lines.length; i++) {
+      const lineNum = i + 1;
+      const isMatched = matchSet.has(lineNum);
+      const cls = isMatched ? "diff-line matched" : "diff-line";
+      html += `<div class="${cls}"><span class="line-num">${lineNum}</span><span class="line-content">${escHtml(lines[i])}</span></div>`;
+    }
+    return html;
+  }
+
+  /**
+   * Converts a matchedLines region list into a flat Set of 1-indexed line
+   * numbers for either file A (useA=true) or file B (useA=false).
+   */
+  function regionToLineSet(matchedLines, useA) {
+    const set = new Set();
+    (matchedLines || []).forEach(r => {
+      const start = useA ? r.startLineA : r.startLineB;
+      const end   = useA ? r.endLineA   : r.endLineB;
+      for (let ln = start; ln <= end; ln++) {
+        set.add(ln);
+      }
+    });
+    return set;
+  }
+
+  /** Shows one diff state panel and hides the others. */
+  function setDiffState(state) {
+    const loading   = document.getElementById("diff-loading");
+    const error     = document.getElementById("diff-error");
+    const noMatches = document.getElementById("diff-no-matches");
+    const content   = document.getElementById("diff-content");
+    [loading, error, noMatches, content].forEach(el => el && el.classList.add("hidden"));
+    const target = { loading, error, "no-matches": noMatches, content }[state];
+    if (target) target.classList.remove("hidden");
+  }
+
+  /**
+   * Opens the diff viewer modal and fetches matched regions for `reportId`.
+   * Called when the user clicks "View" in the results table.
+   */
+  function openDiffViewer(reportId) {
+    const overlay = document.getElementById("diff-overlay");
+    if (!overlay) return;
+
+    // Reset state and show modal
+    overlay.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // prevent page scroll while modal open
+    setDiffState("loading");
+
+    // Clear any previous match count badge
+    const badge = document.getElementById("diff-match-count");
+    if (badge) badge.textContent = "";
+
+    // Fetch the /matches endpoint
+    fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/matches")
+      .then(res => {
+        if (!res.ok) {
+          return res.json().catch(() => null).then(body => {
+            const msg = (body && body.message) ? body.message : "HTTP " + res.status;
+            throw new Error(msg);
+          });
+        }
+        return res.json();
+      })
+      .then(data => {
+        const fileA = data.fileA || {};
+        const fileB = data.fileB || {};
+        const matchedLines = data.matchedLines || [];
+
+        // Update panel headers with file names
+        const headerA = document.getElementById("diff-header-a");
+        const headerB = document.getElementById("diff-header-b");
+        if (headerA) headerA.textContent = fileA.name || "File A";
+        if (headerB) headerB.textContent = fileB.name || "File B";
+
+        // Update match count badge
+        if (badge) {
+          if (matchedLines.length > 0) {
+            badge.textContent = matchedLines.length + " matched region" + (matchedLines.length !== 1 ? "s" : "");
+          } else {
+            badge.textContent = "";
+          }
+        }
+
+        if (matchedLines.length === 0) {
+          setDiffState("no-matches");
+          return;
+        }
+
+        // Build and inject code panels
+        const codeA = document.getElementById("diff-code-a");
+        const codeB = document.getElementById("diff-code-b");
+        if (codeA) codeA.innerHTML = buildPanelHTML(fileA.rawCode || "", regionToLineSet(matchedLines, true));
+        if (codeB) codeB.innerHTML = buildPanelHTML(fileB.rawCode || "", regionToLineSet(matchedLines, false));
+
+        setDiffState("content");
+
+        // Scroll the first matched line of panel A into view after render
+        if (matchedLines[0]) {
+          const firstMatchLineA = matchedLines[0].startLineA;
+          if (codeA) {
+            const firstMatchedEl = codeA.children[firstMatchLineA - 1];
+            if (firstMatchedEl) {
+              setTimeout(() => firstMatchedEl.scrollIntoView({ block: "center" }), 80);
+            }
+          }
+        }
+      })
+      .catch(err => {
+        const errText = document.getElementById("diff-error-text");
+        if (errText) errText.textContent = "Failed to load matched regions: " + (err.message || "Unknown error");
+        setDiffState("error");
+      });
+  }
+
+  /** Closes the diff viewer modal and restores page scroll. */
+  function closeDiffViewer() {
+    const overlay = document.getElementById("diff-overlay");
+    if (overlay) overlay.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  // Wire up close button and overlay backdrop click
+  document.addEventListener("DOMContentLoaded", () => {
+    const closeBtn = document.getElementById("diff-close-btn");
+    const overlay  = document.getElementById("diff-overlay");
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeDiffViewer);
+    }
+
+    if (overlay) {
+      overlay.addEventListener("click", e => {
+        // Close only if the click is directly on the backdrop (not the modal card)
+        if (e.target === overlay) closeDiffViewer();
+      });
+    }
+
+    // Also close on Escape key
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        const ov = document.getElementById("diff-overlay");
+        if (ov && !ov.classList.contains("hidden")) closeDiffViewer();
+      }
+    });
+  });
 
 })();

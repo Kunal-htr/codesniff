@@ -243,4 +243,119 @@ public class SimilarityEngine {
         }
         return compact;
     }
+
+    public static final class MatchedRegion {
+        public final int startLineA, endLineA;
+        public final int startLineB, endLineB;
+        public MatchedRegion(int startLineA, int endLineA, int startLineB, int endLineB) {
+            this.startLineA = startLineA; this.endLineA = endLineA;
+            this.startLineB = startLineB; this.endLineB = endLineB;
+        }
+    }
+
+    /**
+     * Identifies contiguous blocks of matching lines between two analyzed files.
+     * Maps normalized token matches back to original line numbers via best-effort
+     * proportional alignment.
+     *
+     * @param a        analysis of file A
+     * @param b        analysis of file B
+     * @param k        the k-gram length parameter used
+     * @param lineMapA lookup list of line numbers for file A
+     * @param lineMapB lookup list of line numbers for file B
+     * @return a sorted, merged list of matched line regions
+     */
+    public static List<MatchedRegion> computeMatchedRegions(
+            Analysis a, Analysis b, int k,
+            List<Integer> lineMapA, List<Integer> lineMapB) {
+        
+        List<MatchedRegion> candidates = new ArrayList<>();
+        if (a == null || b == null || lineMapA == null || lineMapB == null || lineMapA.isEmpty() || lineMapB.isEmpty()) {
+            return candidates;
+        }
+
+        // 1. Compute the set of common fingerprint hashes between a.fpSet and b.fpSet
+        Set<Long> common = new HashSet<>(a.fpSet);
+        common.retainAll(b.fpSet);
+        if (common.isEmpty()) {
+            return candidates;
+        }
+
+        // Find all matched fingerprints in a and b group by hash
+        Map<Long, List<Fingerprint>> fpMapA = new HashMap<>();
+        for (Fingerprint f : a.fps) {
+            if (common.contains(f.hash)) {
+                fpMapA.computeIfAbsent(f.hash, h -> new ArrayList<>()).add(f);
+            }
+        }
+        Map<Long, List<Fingerprint>> fpMapB = new HashMap<>();
+        for (Fingerprint f : b.fps) {
+            if (common.contains(f.hash)) {
+                fpMapB.computeIfAbsent(f.hash, h -> new ArrayList<>()).add(f);
+            }
+        }
+
+        // Pair them up
+        for (long hash : common) {
+            List<Fingerprint> listA = fpMapA.get(hash);
+            List<Fingerprint> listB = fpMapB.get(hash);
+            if (listA == null || listB == null) continue;
+
+            for (Fingerprint fA : listA) {
+                for (Fingerprint fB : listB) {
+                    int startA = mapTokenToLine(fA.pos, a.tokenCount, lineMapA);
+                    int endA = mapTokenToLine(fA.pos + k - 1, a.tokenCount, lineMapA);
+                    int startB = mapTokenToLine(fB.pos, b.tokenCount, lineMapB);
+                    int endB = mapTokenToLine(fB.pos + k - 1, b.tokenCount, lineMapB);
+                    candidates.add(new MatchedRegion(startA, endA, startB, endB));
+                }
+            }
+        }
+
+        // Converging merge pass
+        List<MatchedRegion> currentRegions = new ArrayList<>(candidates);
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            List<MatchedRegion> nextRegions = new ArrayList<>();
+            for (MatchedRegion r : currentRegions) {
+                boolean merged = false;
+                for (int i = 0; i < nextRegions.size(); i++) {
+                    MatchedRegion existing = nextRegions.get(i);
+                    if (r.startLineA <= existing.endLineA + 1 && r.endLineA >= existing.startLineA - 1 &&
+                        r.startLineB <= existing.endLineB + 1 && r.endLineB >= existing.startLineB - 1) {
+                        int startA = Math.min(existing.startLineA, r.startLineA);
+                        int endA = Math.max(existing.endLineA, r.endLineA);
+                        int startB = Math.min(existing.startLineB, r.startLineB);
+                        int endB = Math.max(existing.endLineB, r.endLineB);
+                        nextRegions.set(i, new MatchedRegion(startA, endA, startB, endB));
+                        merged = true;
+                        changed = true;
+                        break;
+                    }
+                }
+                if (!merged) {
+                    nextRegions.add(r);
+                }
+            }
+            currentRegions = nextRegions;
+        }
+
+        currentRegions.sort((r1, r2) -> {
+            int cmp = Integer.compare(r1.startLineA, r2.startLineA);
+            if (cmp != 0) return cmp;
+            return Integer.compare(r1.startLineB, r2.startLineB);
+        });
+
+        return currentRegions;
+    }
+
+    private static int mapTokenToLine(int idx, int normalizedTokenCount, List<Integer> lineMap) {
+        if (lineMap == null || lineMap.isEmpty()) return 1;
+        if (normalizedTokenCount <= 1) return lineMap.get(0);
+        
+        int rawIdx = (int) Math.round(((double) idx / (normalizedTokenCount - 1)) * (lineMap.size() - 1));
+        rawIdx = Math.max(0, Math.min(lineMap.size() - 1, rawIdx));
+        return lineMap.get(rawIdx);
+    }
 }

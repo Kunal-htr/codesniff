@@ -3,13 +3,18 @@ package backend.service;
 import backend.analysis.SimilarityEngine;
 import backend.dto.ReportResponse;
 import backend.dto.VerdictUtil;
+import backend.dto.MatchesResponse;
+import backend.dto.FileInfoDTO;
+import backend.dto.MatchedRegionDTO;
 import backend.exception.ReportNotFoundException;
 import backend.store.ReportStore;
 import backend.store.ReportStore.ReportData;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -68,6 +73,64 @@ public class ReportService {
                         matchCount, countA, countB
                 )
         );
+    }
+
+    /**
+     * Retrieves raw code and computed matched line regions for a compared pair.
+     *
+     * @param id report identifier
+     * @return MatchesResponse DTO containing raw code and matched regions
+     * @throws ReportNotFoundException if the report ID does not exist
+     */
+    public MatchesResponse getMatchesReport(String id) {
+        ReportData r = reportStore.get(id);
+        if (r == null) {
+            throw new ReportNotFoundException(id);
+        }
+
+        // Reconstruct fpSets
+        Set<Long> fpSetA = new HashSet<>();
+        if (r.fpsA() != null) {
+            for (SimilarityEngine.Fingerprint f : r.fpsA()) {
+                fpSetA.add(f.hash);
+            }
+        }
+        Set<Long> fpSetB = new HashSet<>();
+        if (r.fpsB() != null) {
+            for (SimilarityEngine.Fingerprint f : r.fpsB()) {
+                fpSetB.add(f.hash);
+            }
+        }
+
+        // Reconstruct Analysis objects
+        SimilarityEngine.Analysis a = new SimilarityEngine.Analysis(
+                fpSetA, r.fpsA(), r.streamA().size(), r.streamA(), r.normA(), r.rawA()
+        );
+        SimilarityEngine.Analysis b = new SimilarityEngine.Analysis(
+                fpSetB, r.fpsB(), r.streamB().size(), r.streamB(), r.normB(), r.rawB()
+        );
+
+        // Build line maps
+        List<Integer> lineMapA = backend.analysis.Tokenizer.buildLineMap(r.rawA());
+        List<Integer> lineMapB = backend.analysis.Tokenizer.buildLineMap(r.rawB());
+
+        // Compute matched regions
+        List<SimilarityEngine.MatchedRegion> regions = SimilarityEngine.computeMatchedRegions(
+                a, b, r.k(), lineMapA, lineMapB
+            );
+
+        // Convert regions to DTOs
+        List<MatchedRegionDTO> dtoList = new ArrayList<>();
+        for (SimilarityEngine.MatchedRegion mr : regions) {
+            dtoList.add(new MatchedRegionDTO(
+                    mr.startLineA, mr.endLineA, mr.startLineB, mr.endLineB
+            ));
+        }
+
+        FileInfoDTO fileA = new FileInfoDTO(r.nameA(), r.rawA());
+        FileInfoDTO fileB = new FileInfoDTO(r.nameB(), r.rawB());
+
+        return new MatchesResponse(fileA, fileB, dtoList);
     }
 
     /** Number of reports currently cached. */

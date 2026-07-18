@@ -46,6 +46,7 @@ public class ReportStore {
      */
     public record ReportData(
             String nameA, String nameB,
+            String rawA, String rawB,
             String normA, String normB,
             List<String> streamA, List<String> streamB,
             List<SimilarityEngine.Fingerprint> fpsA,

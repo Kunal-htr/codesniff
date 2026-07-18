@@ -6,6 +6,7 @@ import backend.dto.CodePayload.Submission;
 import backend.dto.CodePayload.OptionsDTO;
 import backend.dto.InfoResponse;
 import backend.dto.ReportResponse;
+import backend.dto.MatchesResponse;
 import backend.service.AnalysisService;
 import backend.service.ReportService;
 
@@ -124,6 +125,19 @@ public class AnalyzeController {
     @GetMapping(path = "/report/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReportResponse> report(@PathVariable("id") String id) {
         ReportResponse response = reportService.getReport(id);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Retrieves the raw code and matched line regions for a compared pair.
+     *
+     * @param id the unique UUID of the generated report
+     * @return the MatchesResponse DTO containing raw code and line mapping blocks (HTTP 200)
+     * @throws backend.exception.ReportNotFoundException if the report ID does not exist in cache (HTTP 404)
+     */
+    @GetMapping(path = "/report/{id}/matches", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MatchesResponse> reportMatches(@PathVariable("id") String id) {
+        MatchesResponse response = reportService.getMatchesReport(id);
         return ResponseEntity.ok(response);
     }
 }

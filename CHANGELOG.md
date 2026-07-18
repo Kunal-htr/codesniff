@@ -7,6 +7,18 @@ and this project adheres to Semantic Versioning.
 
 ---
 
+## [v0.7] - 2026-07-18
+
+### Added
+- **Backend Source Line Tracking**: Updated `CodeNormalizer` and `Tokenizer` to accurately map normalized/stripped tokens back to their exact original line numbers in the raw source files.
+- **Fingerprint Line Ranges**: Enhanced `SimilarityEngine` fingerprints to capture and store source code line ranges (`startLine` and `endLine`) instead of just token indexes.
+- **Matches API Endpoint**: Added a new REST endpoint (`GET /api/report/{id}/matches`) that returns the raw source code of two matched files along with a flat, deduplicated list of `MatchedRegionDTO` objects.
+- **Side-by-Side Diff Viewer**: Introduced a new full-screen modal overlay in vanilla HTML/CSS to view matched files side-by-side with exact line-highlighting (gold borders and amber backgrounds) for plagiarized regions.
+
+### Fixed
+- **CSS Layout Resilience**: Fixed a DOM nesting issue where the diff viewer modal was trapped inside a hidden parent section, and corrected flex layout parameters to ensure panels match height and highlight styles span full line widths even when horizontally scrolled.
+
+
 ## [v0.6] - 2026-07-17
 
 ### Added

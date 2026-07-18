@@ -154,6 +154,7 @@ public class AnalysisService {
                 String id = UUID.randomUUID().toString();
                 reportStore.put(id, new ReportStore.ReportData(
                         nullTo(si.name(), "A" + i), nullTo(sj.name(), "A" + j),
+                        aComp.rawCode, bComp.rawCode,
                         aComp.normalizedCode, bComp.normalizedCode, aComp.symbolStream, bComp.symbolStream,
                         aComp.fps, bComp.fps, defaultK, defaultW, omit, jac, cov, lcs, ast, hyb, operatorDivergent
                 ));

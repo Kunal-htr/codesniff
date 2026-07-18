@@ -472,6 +472,58 @@
     </div>
   </footer>
 
+  <!-- ==================== DIFF VIEWER MODAL ==================== -->
+  <!-- Placed as direct body child so position:fixed is never clipped by a display:none ancestor -->
+  <div id="diff-overlay" class="diff-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="diff-modal-title">
+    <div class="diff-modal">
+      <div class="diff-modal-header">
+        <div class="diff-modal-title-group">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+          <h3 id="diff-modal-title">Side-by-Side Code Review</h3>
+        </div>
+        <div class="diff-modal-actions">
+          <span id="diff-match-count" class="diff-badge"></span>
+          <button id="diff-close-btn" class="diff-close-btn" aria-label="Close diff viewer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="diff-loading" class="diff-state-msg">
+        <div class="diff-spinner"></div>
+        <span>Loading matched regions…</span>
+      </div>
+      <div id="diff-error" class="diff-state-msg diff-error-msg hidden">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="diff-error-text">Failed to load matched regions.</span>
+      </div>
+      <div id="diff-no-matches" class="diff-state-msg diff-info-msg hidden">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span>No significant matched regions found between these files.</span>
+      </div>
+
+      <div id="diff-content" class="diff-container hidden">
+        <div class="diff-panel" id="diff-panel-a">
+          <div class="diff-panel-header" id="diff-header-a">File A</div>
+          <div class="diff-code-wrap" id="diff-code-a"></div>
+        </div>
+        <div class="diff-gutter-divider" aria-hidden="true"></div>
+        <div class="diff-panel" id="diff-panel-b">
+          <div class="diff-panel-header" id="diff-header-b">File B</div>
+          <div class="diff-code-wrap" id="diff-code-b"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 
