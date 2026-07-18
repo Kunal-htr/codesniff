@@ -1975,6 +1975,81 @@ textarea::placeholder {
   text-overflow: clip;
 }
 
+/* ============================================================
+   BATCH OVERVIEW (v0.8)
+   ============================================================ */
+.batch-stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.stat-card-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 16px;
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 2px;
+  width: max-content;
+}
+
+.heatmap-cell {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  background: var(--bg-alt);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.heatmap-cell.diagonal {
+  background: #cbd5e1;
+  cursor: default;
+}
+
+.heatmap-cell:not(.diagonal):hover {
+  transform: scale(1.15);
+  z-index: 10;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.heatmap-cell.low { background: #4caf50; }
+.heatmap-cell.medium { background: #f59e0b; }
+.heatmap-cell.high { background: #ef4444; }
+
+
 /* --- Responsive: stack panels vertically on small screens --- */
 @media (max-width: 768px) {
   .diff-overlay {
