@@ -66,6 +66,8 @@ public class ReportService {
         setA.retainAll(setB);
         int matchCount = setA.size();
 
+        ReportResponse.CloneExplanation explanation = computeExplanation(r);
+
         return new ReportResponse(
                 r.nameA(), r.nameB(),
                 r.jaccard(), r.coverage(), r.lcs(), r.ast(), r.hybrid(),
@@ -73,6 +75,7 @@ public class ReportService {
                 r.operatorDivergent(),
                 r.divergentOperators(),
                 r.identifierRenames(),
+                explanation,
                 new ReportResponse.Metadata(
                         r.k(), r.window(), r.omitComments(),
                         matchCount, countA, countB
@@ -190,5 +193,39 @@ public class ReportService {
     /** Number of reports currently cached. */
     public int activeReportCount() {
         return reportStore.size();
+    }
+
+    /**
+     * Synthesizes an explanation of the clone type based on existing similarity signals.
+     */
+    private ReportResponse.CloneExplanation computeExplanation(ReportData r) {
+        String cloneType;
+        List<String> factors = new ArrayList<>();
+
+        if (r.hybrid() <= VerdictUtil.THRESHOLD_REVIEW) {
+            cloneType = "No significant clone detected";
+        } else if (r.coverage() >= 0.45 && ((r.coverage() - r.lcs() >= 0.10) || r.ast() < 0.80)) {
+            cloneType = "Type-3 Clone";
+        } else if (r.coverage() >= 0.85 && r.lcs() >= 0.85 && r.operatorDivergent()) {
+            cloneType = "Type-3 Clone (Logic Mutation)";
+        } else if (r.coverage() >= 0.85 && r.lcs() >= 0.85 && !r.identifierRenames().isEmpty()) {
+            cloneType = "Type-2 Clone";
+        } else if (r.coverage() >= 0.95 && r.ast() >= 0.95 && r.identifierRenames().isEmpty() && !r.operatorDivergent()) {
+            cloneType = "Type-1 Clone";
+        } else {
+            cloneType = "Type-4 or Unclassified Clone";
+        }
+
+        if (!r.identifierRenames().isEmpty()) {
+            factors.add("Identifiers renamed (" + r.identifierRenames().size() + " variables)");
+        }
+        if (r.operatorDivergent() && !r.divergentOperators().isEmpty()) {
+            factors.add("Comparison operators modified (e.g., " + r.divergentOperators().get(0) + ")");
+        }
+        if (r.coverage() - r.lcs() >= 0.10 || r.ast() < 0.80) {
+            factors.add("Statements inserted, removed, or reordered");
+        }
+
+        return new ReportResponse.CloneExplanation(cloneType, factors);
     }
 }

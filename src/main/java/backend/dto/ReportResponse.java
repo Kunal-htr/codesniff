@@ -19,6 +19,7 @@ package backend.dto;
  * @param operatorDivergent flag indicating if similarity is driven primarily by operator matching
  * @param divergentOperators list of the divergent operator pairs found (e.g. "> vs <")
  * @param identifierRenames list of renamed identifiers (e.g. "student -> user")
+ * @param explanation       synthesized human-readable explanation of clone type
  * @param metadata          parameters and metadata details for this comparison
  */
 public record ReportResponse(
@@ -34,8 +35,20 @@ public record ReportResponse(
         boolean operatorDivergent,
         java.util.List<String> divergentOperators,
         java.util.List<String> identifierRenames,
+        CloneExplanation explanation,
         Metadata metadata
 ) {
+
+    /**
+     * Synthesized explanation of the clone type and contributing factors.
+     *
+     * @param cloneType            e.g., "Type-1 Clone", "Type-2 Clone", "Type-3 Clone"
+     * @param contributingFactors  plain-English factors explaining the classification
+     */
+    public record CloneExplanation(
+            String cloneType,
+            java.util.List<String> contributingFactors
+    ) {}
 
     /**
      * Comparison metadata detailing analysis parameters and fingerprint stats.
