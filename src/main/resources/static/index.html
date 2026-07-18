@@ -59,12 +59,12 @@
     <!-- ====== HOME PAGE ====== -->
     <section id="page-home" class="page active">
 
-      <!-- HERO SECTION -->
-      <div class="hero-minimal">
-        <div class="hero-minimal-content">
-          <h1 class="hero-title">Structural Code Similarity Engine</h1>
-          <p class="hero-subtitle">Detect source code clones and structural plagiarism instantly. Powered by K-gram
-            fingerprinting, Winnowing, and AST-aware hybrid scoring.</p>
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-content">
+          <h1>Structural Code<br>Similarity Engine</h1>
+          <p class="subtitle">Token-based similarity engine powered by K-gram fingerprinting and Winnowing, combined
+            with AST structural comparison to detect disguised copied code.</p>
           <div class="hero-actions">
             <button id="btnGetStarted" class="btn btn-primary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -77,82 +77,180 @@
               View Source
             </a>
           </div>
+
+          <!-- Stats -->
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="stat-value">&lt;200ms</span>
+              <span class="stat-label">Avg Response Time</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">AST+Token</span>
+              <span class="stat-label">Hybrid Scoring</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">Type 1–4</span>
+              <span class="stat-label">Clone Detection</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-illustration" id="heroIllustration">
+          <img src="assets/4.png" alt="CodeSniff comparison illustration" class="hero-logo" />
         </div>
       </div>
 
-      <!-- KEY STATS -->
-      <div class="stats-minimal-row">
-        <div class="stat-minimal-card">
-          <span class="stat-val">K-Gram</span>
-          <span class="stat-lbl">Fingerprint Engine</span>
+      <!-- FEATURES -->
+      <div class="features">
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+          </div>
+          <h3>Structural Analysis</h3>
+          <p>Tokenization and k-gram fingerprints resist renaming, statement reordering, and comment-removal tricks.
+            Safely detects disguised plagiarism that text matchers miss.</p>
         </div>
-        <div class="stat-minimal-card">
-          <span class="stat-val">AST</span>
-          <span class="stat-lbl">Structural Analysis</span>
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 20V10" />
+              <path d="M18 20V4" />
+              <path d="M6 20v-4" />
+            </svg>
+          </div>
+          <h3>Hybrid Scoring</h3>
+          <p>Combines Jaccard fingerprint similarity, coverage metrics, LCS statement alignment, and AST structural
+            comparison for reliable, nuanced similarity scores.</p>
         </div>
-        <div class="stat-minimal-card">
-          <span class="stat-val">1–4</span>
-          <span class="stat-lbl">Clone Types Classified</span>
-        </div>
-        <div class="stat-minimal-card">
-          <span class="stat-val">&lt;200ms</span>
-          <span class="stat-lbl">Avg Response Time</span>
-        </div>
-      </div>
-
-      <!-- FEATURES GRID -->
-      <div class="features-minimal">
-        <h2 class="section-heading">How it works</h2>
-        <div class="features-minimal-grid">
-          <div class="feature-minimal-card">
-            <h3>Hybrid Scoring Model</h3>
-            <p>Combines Jaccard fingerprint similarity, coverage metrics, LCS statement alignment, and AST structural
-              comparison for nuanced, reliable scores.</p>
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
           </div>
-          <div class="feature-minimal-card">
-            <h3>Side-by-Side Code Review</h3>
-            <p>Visually highlights matched regions with easy jump-between-matches navigation for rapid manual
-              verification.</p>
-          </div>
-          <div class="feature-minimal-card">
-            <h3>Clone-Type Classification</h3>
-            <p>Automatically flags clones with plain-English explanations (e.g., "Type-3 Clone (Logic Mutation):
-              Operator divergence detected").</p>
-          </div>
-          <div class="feature-minimal-card">
-            <h3>Advanced Detection</h3>
-            <p>Catches identifier renames and operator divergence (e.g., max-finding vs min-finding) that share
-              structure but differ in logic.</p>
-          </div>
-          <div class="feature-minimal-card">
-            <h3>Batch Analytics</h3>
-            <p>Provides a similarity heatmap across all submitted files, verdict-count overviews, and flags suspicious
-              pairs at a glance.</p>
-          </div>
-          <div class="feature-minimal-card">
-            <h3>Multi-Format Exports</h3>
-            <p>Generate and download comprehensive similarity reports in CSV, styled HTML, or PDF formats for easy
-              sharing and grading.</p>
-          </div>
+          <h3>Clear Reports</h3>
+          <p>Side-by-side highlighting with jump-between-matches navigation makes reviews fast. Clone-type
+            classification explains exactly why two files matched.</p>
         </div>
       </div>
 
-      <!-- WHO IT'S FOR -->
-      <div class="audience-minimal">
-        <h2 class="section-heading">Built for Code Reviewers</h2>
-        <div class="audience-minimal-grid">
-          <div class="audience-minimal-card">
-            <h3>Instructors & TAs</h3>
-            <p>Automate structural similarity checks across dozens of programming assignments. Quickly identify
-              suspicious submissions with clear, visual evidence.</p>
+      <!-- ====== WHO CAN USE SECTION ====== -->
+      <section class="long-article" id="who-can-use">
+        <div class="container article-inner">
+          <h2>Who can use our structural analyzer</h2>
+
+          <p class="lead">
+            When it comes to coding assignments or software auditing, originality and deduplication are key. Our
+            structural similarity detector shines when you need fast, reliable checks and clear guidance for evaluating
+            code overlaps.
+          </p>
+
+          <div class="cards-row">
+            <article class="info-card">
+              <h3>Instructors & TAs</h3>
+              <p class="brief">
+                Automate structural similarity checks across dozens of programming assignments. Quickly identify
+                suspicious submissions with clear, visual evidence.
+              </p>
+              <div class="full-text hidden">
+                <p>
+                  Use class-wide batch scans to generate similarity heatmaps, obtain side-by-side reports, and export
+                  evidence for grading. The tool highlights suspicious passages automatically so you can verify intent
+                  quickly.
+                </p>
+              </div>
+            </article>
+
+            <article class="info-card">
+              <h3>Students & Self-Checkers</h3>
+              <p class="brief">
+                Check your own code before submission. Accidental overlap happens, and a structural check prevents
+                embarrassing academic integrity mistakes.
+              </p>
+              <div class="full-text hidden">
+                <p>
+                  Get explanatory highlights and understand where your structure matches too closely with standard
+                  solutions or peers, helping you properly attribute or refactor code.
+                </p>
+              </div>
+            </article>
+
+            <article class="info-card">
+              <h3>Developers & Auditors</h3>
+              <p class="brief">
+                Audit large codebases for duplicated logic, refactor opportunities, and unintentional copy-pasting using
+                scalable batch analysis.
+              </p>
+              <div class="full-text hidden">
+                <p>
+                  By finding Type-3 and Type-4 logic clones, teams can consolidate duplicate utilities, enforce DRY
+                  principles, and reduce technical debt effortlessly.
+                </p>
+              </div>
+            </article>
           </div>
-          <div class="audience-minimal-card">
-            <h3>Developers & Auditors</h3>
-            <p>Audit large codebases for duplicated logic, refactor opportunities, and unintentional copy-pasting using
-              scalable batch analysis.</p>
+
+          <hr class="article-sep">
+
+          <div class="article-block">
+            <h3>Discover the benefits of using CodeSniff</h3>
+
+            <div class="summary">
+              <ul>
+                <li><strong>Advanced Detection:</strong> Catches identifier renames and operator divergence (e.g.,
+                  max-finding vs min-finding).</li>
+                <li><strong>Contextual Explanations:</strong> Plain-English clone-type classifications (e.g., "Type-3
+                  Clone (Logic Mutation)").</li>
+                <li><strong>Scalable Batch Analytics:</strong> Heatmaps and verdict-count overviews for fast scanning of
+                  cohorts.</li>
+                <li><strong>Multi-Format Exports:</strong> Generate structured similarity reports in CSV, HTML, or PDF
+                  formats.</li>
+              </ul>
+            </div>
+
+            <div class="full-article">
+              <p>
+                CodeSniff operates as a fast, in-memory structural comparison engine. It detects exact matches, logic
+                mutations, and heavy structural rearrangements. Standard framework boilerplate is detected and handled
+                correctly so that common setups are not flagged as plagiarism by default. The engine looks at the actual
+                AST and execution logic, not just string similarity.
+              </p>
+
+              <p>
+                Similarity ranges from intentional theft to accidental overlap. We flag both: deliberate obfuscation
+                (renamed variables, reordered loops, inverted conditionals) and unintentional duplication. The tool
+                helps users understand the true overlap by identifying problem areas and categorizing the clone type.
+              </p>
+
+              <p>
+                The consequences of plagiarism can be severe. Regular structural checks limit risk and teach good
+                habits. Use CodeSniff as part of your grading workflow or codebase assessment to remain confident in
+                your code's originality and maintain DRY principles.
+              </p>
+            </div>
+          </div>
+
+          <hr class="article-sep">
+
+          <div class="tips">
+            <h3>How a structural checker helps reviewers</h3>
+            <ol>
+              <li>Rely on AST-aware algorithms, not fragile exact-text matching.</li>
+              <li>Use the batch heatmap to quickly isolate suspicious clusters.</li>
+              <li>Review the plain-English clone classification to understand the intent.</li>
+              <li>Export reports to keep clear, objective records for offline grading.</li>
+            </ol>
           </div>
         </div>
-      </div>
+      </section>
     </section>
 
     <!-- ====== UPLOAD PAGE ====== -->
