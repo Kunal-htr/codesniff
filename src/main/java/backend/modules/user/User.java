@@ -31,6 +31,12 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "verification_token")
+    private String verificationToken;
+
+    @Column(name = "verification_token_expires_at")
+    private OffsetDateTime verificationTokenExpiresAt;
+
     public User() {
     }
 
@@ -84,5 +90,21 @@ public class User {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public OffsetDateTime getVerificationTokenExpiresAt() {
+        return verificationTokenExpiresAt;
+    }
+
+    public void setVerificationTokenExpiresAt(OffsetDateTime verificationTokenExpiresAt) {
+        this.verificationTokenExpiresAt = verificationTokenExpiresAt;
     }
 }
