@@ -108,6 +108,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles invalid login credentials.
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiErrorDTO> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    /**
+     * Handles attempts to log in before verifying email.
+     */
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ApiErrorDTO> handleEmailNotVerified(EmailNotVerifiedException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
+    /**
      * Fallback handler for all uncaught/generic exceptions.
      * <p>
      * Logs the real stack trace on the server side for debugging, but returns a generic

@@ -1,5 +1,7 @@
 package backend.modules.user;
 
+import backend.common.exception.EmailNotVerifiedException;
+import backend.common.exception.InvalidCredentialsException;
 import backend.common.exception.UserAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,21 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+    }
+
+    public User login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Invalid credentials.");
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new EmailNotVerifiedException("Please verify your email before logging in.");
+        }
+
+        return user;
     }
 
     public void registerUser(RegisterRequestDTO request) {
