@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,17 @@ public class UserController {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.cookieSecure = cookieSecure;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> getMe(java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.ok(Map.of("authenticated", false));
+        }
+        return ResponseEntity.ok(Map.of(
+                "authenticated", true,
+                "email", principal.getName()
+        ));
     }
 
     @PostMapping("/login")
