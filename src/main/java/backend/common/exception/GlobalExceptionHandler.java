@@ -66,6 +66,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles duplicate user registration attempts.
+     *
+     * @param ex the user already exists exception
+     * @return response entity containing ApiErrorDTO with HTTP 409 (Conflict)
+     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiErrorDTO> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    /**
      * Handles invalid arguments passed to backend services or options checkers.
      *
      * @param ex the illegal argument exception
