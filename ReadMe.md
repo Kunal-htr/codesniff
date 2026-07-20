@@ -287,16 +287,14 @@ codesniff/
 │       ├── java/
 │       │   └── backend/
 │       │       ├── App.java                 # Spring Boot entry point
-│       │       ├── analysis/                # Core similarity engine & tokenization
-│       │       ├── ast/                     # AST generator & tree comparator
-│       │       ├── config/                  # CORS config beans
-│       │       ├── controller/              # REST controller (AnalyzeController)
-│       │       ├── dto/                     # Inbound/outbound request/response DTO records
-│       │       ├── exception/               # Global exception handlers & custom errors
-│       │       ├── service/                 # Business logic orchestration services
-│       │       ├── store/                   # In-memory report caching repository
-│       │       └── util/                    # Schedulers & utility helpers
+│       │       ├── common/                  # Global exceptions & utility helpers
+│       │       ├── config/                  # Security, CORS, & Rate Limiting configs
+│       │       └── modules/                 # Domain-driven architecture modules
+│       │           ├── report/              # Batch generation, PDF/CSV exports
+│       │           ├── similarity/          # Core AST matching & Winnowing engine
+│       │           └── user/                # Authentication, JWT, Profile management
 │       └── resources/
+│           ├── db/migration/                # Flyway SQL migrations
 │           └── static/
 │               ├── index.html               # Frontend UI
 │               ├── app.js                   # Frontend logic
@@ -345,7 +343,7 @@ Live in ~50 seconds ✅
 |---|---|---|---|
 | Module 1 | Similarity Engine | ✅ Complete | v0.5 |
 | Module 2 | Report & Visualization | ✅ Complete | v1.0 |
-| Module 3 | Login, Account Creation & Authorization | 🔄 Planned | v1.5 |
+| Module 3 | Authentication and Security | ✅ Complete | v1.5 |
 | Module 4 | Database & Storage Integration | 🔄 Planned | v2.0 |
 | Module 5 | Future AI Integration | 🔄 Planned | v2.5 |
 
