@@ -86,6 +86,13 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
+        <!-- Rate Limiting -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.3.0</version>
+        </dependency>
+
         <!-- PostgreSQL Driver (for Supabase) -->
         <dependency>
             <groupId>org.postgresql</groupId>

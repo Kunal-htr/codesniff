@@ -1,6 +1,7 @@
 package backend.modules.user;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import backend.config.RateLimitingService;
 
 import java.util.Map;
 
@@ -21,11 +23,21 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final boolean cookieSecure;
+    private final RateLimitingService rateLimitingService;
 
-    public UserController(UserService userService, JwtUtil jwtUtil, @Value("${app.cookie.secure}") boolean cookieSecure) {
+    public UserController(UserService userService, JwtUtil jwtUtil, @Value("${app.cookie.secure}") boolean cookieSecure, RateLimitingService rateLimitingService) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.cookieSecure = cookieSecure;
+        this.rateLimitingService = rateLimitingService;
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0].trim();
     }
 
     @GetMapping("/me")
@@ -40,7 +52,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request, HttpServletRequest httpRequest) {
+        rateLimitingService.checkLoginLimit(getClientIp(httpRequest), request.getEmail());
         User user = userService.login(request.getEmail(), request.getPassword());
         String token = jwtUtil.generateToken(user.getEmail());
 
@@ -73,7 +86,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequestDTO request, HttpServletRequest httpRequest) {
+        rateLimitingService.checkRegisterLimit(getClientIp(httpRequest));
         userService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "User registered successfully. Please check your email to verify your account."));
@@ -86,13 +100,15 @@ public class UserController {
     }
 
     @PostMapping("/resend-verification")
-    public ResponseEntity<Map<String, String>> resendVerification(@Valid @RequestBody ResendVerificationRequestDTO request) {
+    public ResponseEntity<Map<String, String>> resendVerification(@Valid @RequestBody ResendVerificationRequestDTO request, HttpServletRequest httpRequest) {
+        rateLimitingService.checkResendVerificationLimit(getClientIp(httpRequest), request.getEmail());
         userService.resendVerificationEmail(request.getEmail());
         return ResponseEntity.ok(Map.of("message", "If that email is registered, a verification link has been sent."));
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request, HttpServletRequest httpRequest) {
+        rateLimitingService.checkForgotPasswordLimit(getClientIp(httpRequest), request.getEmail());
         userService.forgotPassword(request.getEmail());
         return ResponseEntity.ok(Map.of("message", "If that email is registered, a password reset link has been sent."));
     }

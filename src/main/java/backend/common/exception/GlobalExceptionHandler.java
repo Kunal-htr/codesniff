@@ -124,6 +124,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles rate limit exceeded scenarios.
+     */
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiErrorDTO> handleRateLimitExceeded(RateLimitExceededException ex) {
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
+    }
+
+    /**
      * Fallback handler for all uncaught/generic exceptions.
      * <p>
      * Logs the real stack trace on the server side for debugging, but returns a generic
