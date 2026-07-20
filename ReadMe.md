@@ -287,19 +287,19 @@ codesniff/
 │       ├── java/
 │       │   └── backend/
 │       │       ├── App.java                 # Spring Boot entry point
-│       │       ├── common/                  # Global exceptions & utility helpers
-│       │       ├── config/                  # Security, CORS, & Rate Limiting configs
+│       │       ├── common/                  # Global exceptions, DTOs & utilities
+│       │       ├── config/                  # Security, CORS & Rate Limiting configs
 │       │       └── modules/                 # Domain-driven architecture modules
 │       │           ├── report/              # Batch generation, PDF/CSV exports
 │       │           ├── similarity/          # Core AST matching & Winnowing engine
-│       │           └── user/                # Authentication, JWT, Profile management
+│       │           └── user/                # Authentication, JWT & Profile management
 │       └── resources/
 │           ├── db/migration/                # Flyway SQL migrations
-│           └── static/
-│               ├── index.html               # Frontend UI
-│               ├── app.js                   # Frontend logic
-│               └── style.css                # Styling
-├── frontend/                                # Vercel deployment
+│           └── application.properties       # Spring Boot config
+├── frontend/                                # Frontend UI (Vercel deployment)
+│   ├── index.html                           # Main UI
+│   ├── app.js                               # Frontend logic & routing
+│   └── style.css                            # Styling
 ├── test_samples/                            # Standard plagiarism test samples
 ├── Dockerfile                               # Container config
 └── pom.xml                                  # Maven config
