@@ -280,30 +280,6 @@ body {
   box-shadow: 0 4px 16px rgba(30, 58, 95, 0.2);
 }
 
-.nav-github {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: all var(--transition);
-  border: 1px solid var(--border);
-}
-
-.nav-github:hover {
-  color: var(--navy);
-  background: rgba(30, 58, 95, 0.05);
-  border-color: var(--border-hover);
-}
-
-.nav-github svg {
-  width: 20px;
-  height: 20px;
-}
-
 /* ============================================================
    HERO
    ============================================================ */
@@ -584,6 +560,59 @@ body {
 }
 
 /* ============================================================
+   PROFILE LAYOUT
+   ============================================================ */
+.profile-container {
+  display: flex;
+  gap: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.profile-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.profile-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-nav-item {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.profile-nav-item:hover {
+  background: var(--bg-alt);
+  color: var(--navy);
+}
+
+.profile-nav-item.active {
+  background: var(--bg-alt);
+  color: var(--green);
+  border-left: 4px solid var(--green);
+}
+
+.profile-content {
+  flex-grow: 1;
+}
+
+.profile-section.hidden {
+  display: none;
+}
+
+/* ============================================================
    TABS
    ============================================================ */
 .page-title {
@@ -735,6 +764,104 @@ textarea::placeholder {
   cursor: pointer;
   transition: all var(--transition);
   position: relative;
+}
+
+/* Auth Navigation & Avatar Dropdown */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.avatar-dropdown {
+  position: relative;
+}
+
+.avatar-btn {
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.avatar-btn:hover {
+  border-color: var(--primary);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  min-width: 150px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-menu.hidden {
+  display: none !important;
+}
+
+.dropdown-menu a {
+  padding: 10px 16px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.dropdown-menu a:hover {
+  background: var(--surface-light);
+  color: var(--primary);
+}
+
+.dropdown-menu hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 4px 0;
+}
+
+/* Auth Cards */
+.auth-card {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 32px;
+}
+
+.auth-form .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+.auth-form .form-control {
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.auth-form .form-control:focus {
+  border-color: var(--primary);
+  outline: none;
 }
 
 .checkbox input[type="checkbox"]:checked {

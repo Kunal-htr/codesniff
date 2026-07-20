@@ -9,6 +9,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,10 +46,14 @@ public class UserController {
         if (principal == null) {
             return ResponseEntity.ok(Map.of("authenticated", false));
         }
-        return ResponseEntity.ok(Map.of(
-                "authenticated", true,
-                "email", principal.getName()
-        ));
+        
+        return userService.getUserByEmail(principal.getName())
+                .<ResponseEntity<Map<String, Object>>>map(user -> ResponseEntity.ok(Map.of(
+                        "authenticated", true,
+                        "email", user.getEmail(),
+                        "name", user.getName() == null ? "" : user.getName()
+                )))
+                .orElseGet(() -> ResponseEntity.ok(Map.of("authenticated", false)));
     }
 
     @PostMapping("/login")
@@ -67,7 +72,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new LoginResponseDTO(user.getEmail()));
+                .body(new LoginResponseDTO(user.getName(), user.getEmail()));
     }
 
     @PostMapping("/logout")
@@ -117,5 +122,55 @@ public class UserController {
     public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
         userService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok(Map.of("message", "Password has been successfully reset."));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, String>> changePassword(
+            @Valid @RequestBody ChangePasswordRequestDTO request, 
+            java.security.Principal principal
+    ) {
+        if (principal == null) {
+            throw new backend.common.exception.InvalidCredentialsException("You must be logged in to change your password.");
+        }
+        
+        String email = principal.getName();
+        userService.changePassword(email, request.getCurrentPassword(), request.getNewPassword());
+        
+        return ResponseEntity.ok(Map.of("message", "Password has been successfully changed."));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<Map<String, Object>> updateProfile(
+            @Valid @RequestBody UpdateProfileRequestDTO request,
+            java.security.Principal principal
+    ) {
+        if (principal == null) {
+            throw new backend.common.exception.InvalidCredentialsException("You must be logged in to update your profile.");
+        }
+        
+        String currentEmail = principal.getName();
+        boolean emailChanged = userService.updateProfile(currentEmail, request.getName(), request.getEmail());
+        
+        if (emailChanged) {
+            ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+                    .httpOnly(true)
+                    .secure(cookieSecure)
+                    .sameSite(cookieSecure ? "None" : "Lax")
+                    .path("/")
+                    .maxAge(0) // Expire immediately
+                    .build();
+                    
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .body(Map.of(
+                        "message", "Profile updated. Since your email changed, please verify your new email and log in again.",
+                        "emailChanged", true
+                    ));
+        }
+        
+        return ResponseEntity.ok(Map.of(
+            "message", "Profile successfully updated.",
+            "emailChanged", false
+        ));
     }
 }

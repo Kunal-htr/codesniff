@@ -42,6 +42,10 @@ public class UserService {
         return user;
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public void registerUser(RegisterRequestDTO request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("A user with this email already exists.");
@@ -49,6 +53,7 @@ public class UserService {
 
         User user = new User();
         user.setEmail(request.getEmail());
+        user.setName(request.getName());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setEmailVerified(false);
 
@@ -139,5 +144,48 @@ public class UserService {
         user.setResetTokenExpiresAt(null);
 
         userRepository.save(user);
+    }
+
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Invalid current password.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public boolean updateProfile(String currentEmail, String newName, String newEmail) {
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
+
+        user.setName(newName);
+        
+        boolean emailChanged = false;
+        if (!currentEmail.equalsIgnoreCase(newEmail)) {
+            if (userRepository.findByEmail(newEmail).isPresent()) {
+                throw new UserAlreadyExistsException("A user with this email already exists.");
+            }
+            user.setEmail(newEmail);
+            user.setEmailVerified(false);
+            
+            String token = UUID.randomUUID().toString();
+            user.setVerificationToken(token);
+            user.setVerificationTokenExpiresAt(OffsetDateTime.now().plusHours(24));
+            
+            emailChanged = true;
+            
+            try {
+                emailService.sendVerificationEmail(newEmail, token);
+            } catch (Exception e) {
+                log.error("Failed to send verification email for email update to {}", newEmail, e);
+            }
+        }
+        
+        userRepository.save(user);
+        return emailChanged;
     }
 }
