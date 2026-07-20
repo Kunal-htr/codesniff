@@ -35,4 +35,20 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendPasswordResetEmail(String to, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(to);
+        message.setSubject("Reset your CodeSniff password");
+        String resetLink = frontendUrl + "/#/reset-password?token=" + token;
+
+        message.setText("We received a request to reset your CodeSniff password.\n\n" +
+                "Click the link below to set a new password:\n" +
+                resetLink + "\n\n" +
+                "This link will expire in 1 hour.\n\n" +
+                "If you did not request a password reset, please ignore this email.");
+
+        mailSender.send(message);
+    }
 }

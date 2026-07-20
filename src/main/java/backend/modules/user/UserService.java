@@ -105,4 +105,39 @@ public class UserService {
         }
         // If the user doesn't exist, we do nothing and return normally (preventing email enumeration)
     }
+
+    public void forgotPassword(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            user.setResetTokenExpiresAt(OffsetDateTime.now().plusHours(1));
+            
+            userRepository.save(user);
+
+            try {
+                emailService.sendPasswordResetEmail(user.getEmail(), token);
+            } catch (Exception e) {
+                log.error("Failed to send password reset email for {}", user.getEmail(), e);
+            }
+        }
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token."));
+
+        if (user.getResetTokenExpiresAt().isBefore(OffsetDateTime.now())) {
+            throw new IllegalArgumentException("Reset token has expired.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiresAt(null);
+
+        userRepository.save(user);
+    }
 }

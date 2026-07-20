@@ -37,6 +37,12 @@ public class User {
     @Column(name = "verification_token_expires_at")
     private OffsetDateTime verificationTokenExpiresAt;
 
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expires_at")
+    private OffsetDateTime resetTokenExpiresAt;
+
     public User() {
     }
 
@@ -106,5 +112,21 @@ public class User {
 
     public void setVerificationTokenExpiresAt(OffsetDateTime verificationTokenExpiresAt) {
         this.verificationTokenExpiresAt = verificationTokenExpiresAt;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public OffsetDateTime getResetTokenExpiresAt() {
+        return resetTokenExpiresAt;
+    }
+
+    public void setResetTokenExpiresAt(OffsetDateTime resetTokenExpiresAt) {
+        this.resetTokenExpiresAt = resetTokenExpiresAt;
     }
 }

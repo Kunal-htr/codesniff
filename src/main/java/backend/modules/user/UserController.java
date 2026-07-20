@@ -90,4 +90,16 @@ public class UserController {
         userService.resendVerificationEmail(request.getEmail());
         return ResponseEntity.ok(Map.of("message", "If that email is registered, a verification link has been sent."));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+        userService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok(Map.of("message", "If that email is registered, a password reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+        userService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(Map.of("message", "Password has been successfully reset."));
+    }
 }
