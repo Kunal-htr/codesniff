@@ -8,6 +8,7 @@ import backend.modules.report.dto.InfoResponse;
 import backend.modules.report.dto.ReportResponse;
 import backend.modules.report.dto.MatchesResponse;
 import backend.modules.report.dto.BatchSummaryDTO;
+import backend.modules.report.dto.PairSummaryDTO;
 import backend.modules.report.AnalysisService;
 import backend.modules.report.ReportService;
 import backend.modules.report.ExportService;
@@ -20,8 +21,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+
+import backend.modules.history.AnalysisHistory;
+import backend.modules.history.AnalysisHistoryRepository;
+import backend.modules.user.User;
+import backend.modules.user.UserRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST controller for CodeSniff analysis endpoints.
@@ -34,14 +45,27 @@ import java.util.List;
 @RequestMapping("/api")
 public class AnalyzeController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AnalyzeController.class);
+
     private final AnalysisService analysisService;
     private final ReportService reportService;
     private final ExportService exportService;
+    private final UserRepository userRepository;
+    private final AnalysisHistoryRepository historyRepository;
+    private final ObjectMapper objectMapper;
 
-    public AnalyzeController(AnalysisService analysisService, ReportService reportService, ExportService exportService) {
+    public AnalyzeController(AnalysisService analysisService, 
+                             ReportService reportService, 
+                             ExportService exportService,
+                             UserRepository userRepository,
+                             AnalysisHistoryRepository historyRepository,
+                             ObjectMapper objectMapper) {
         this.analysisService = analysisService;
         this.reportService = reportService;
         this.exportService = exportService;
+        this.userRepository = userRepository;
+        this.historyRepository = historyRepository;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -83,8 +107,10 @@ public class AnalyzeController {
      * @return analysis response DTO containing lists of evaluated pairs and their similarity metrics
      */
     @PostMapping(path = "/analyze", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public AnalysisResponse analyze(@Valid @RequestBody CodePayload payload) {
-        return analysisService.analyze(payload);
+    public AnalysisResponse analyze(@Valid @RequestBody CodePayload payload, Principal principal) {
+        AnalysisResponse response = analysisService.analyze(payload);
+        saveHistoryDefensively(response.batchId(), principal);
+        return response;
     }
 
     /**
@@ -103,7 +129,8 @@ public class AnalyzeController {
             @RequestPart("files") List<MultipartFile> files,
             @RequestParam(name = "omitComments", defaultValue = "true") boolean omit,
             @RequestParam(name = "k", defaultValue = "6") int k,
-            @RequestParam(name = "window", defaultValue = "4") int w) throws IOException {
+            @RequestParam(name = "window", defaultValue = "4") int w,
+            Principal principal) throws IOException {
         if (files == null || files.size() < 2) {
             throw new IllegalArgumentException("At least 2 files are required for comparison");
         }
@@ -117,7 +144,66 @@ public class AnalyzeController {
         for (var f : files) {
             subs.add(new Submission(f.getOriginalFilename(), new String(f.getBytes())));
         }
-        return analysisService.analyze(new CodePayload(subs, new OptionsDTO(omit, k, w)));
+        AnalysisResponse response = analysisService.analyze(new CodePayload(subs, new OptionsDTO(omit, k, w)));
+        saveHistoryDefensively(response.batchId(), principal);
+        return response;
+    }
+
+    /**
+     * Defensively saves the analysis history if the user is authenticated.
+     * Wrapped in a broad try-catch to ensure failure here NEVER breaks the main analysis flow.
+     */
+    private void saveHistoryDefensively(String batchId, Principal principal) {
+        if (principal == null) {
+            return;
+        }
+        try {
+            User user = userRepository.findByEmail(principal.getName()).orElse(null);
+            if (user == null) {
+                return;
+            }
+
+            BatchSummaryDTO summary = reportService.getBatchSummary(batchId);
+            
+            List<String> fileNames = new ArrayList<>();
+            List<backend.modules.report.dto.ReportResponse> detailedReports = new ArrayList<>();
+            
+            for (PairSummaryDTO pair : summary.pairs()) {
+                if (!fileNames.contains(pair.a())) fileNames.add(pair.a());
+                if (!fileNames.contains(pair.b())) fileNames.add(pair.b());
+                
+                try {
+                    detailedReports.add(reportService.getReport(pair.reportId()));
+                } catch (Exception ex) {
+                    logger.warn("Could not fetch detailed report for pair " + pair.reportId() + " during history save", ex);
+                }
+            }
+
+            // Build a comprehensive JSON payload holding both the summary metrics and the FULL report details
+            java.util.Map<String, Object> fullResult = new java.util.HashMap<>();
+            fullResult.put("totalFiles", summary.totalFiles());
+            fullResult.put("totalPairs", summary.totalPairs());
+            fullResult.put("highestSimilarity", summary.highestSimilarity());
+            fullResult.put("averageSimilarity", summary.averageSimilarity());
+            fullResult.put("lowestSimilarity", summary.lowestSimilarity());
+            fullResult.put("suspiciousPairCount", summary.suspiciousPairCount());
+            fullResult.put("pairs", detailedReports);
+
+            AnalysisHistory history = new AnalysisHistory();
+            history.setUserId(user.getId());
+            history.setBatchId(batchId);
+            history.setFileNames(fileNames);
+            history.setTotalPairs(summary.totalPairs());
+            history.setHighestSimilarity(summary.highestSimilarity());
+            history.setAverageSimilarity(summary.averageSimilarity());
+            
+            JsonNode jsonNode = objectMapper.valueToTree(fullResult);
+            history.setFullResultJson(jsonNode);
+            
+            historyRepository.save(history);
+        } catch (Exception e) {
+            logger.error("Failed to save analysis history for batch " + batchId + " (User: " + principal.getName() + "). Analysis succeeded, but history persistence failed.", e);
+        }
     }
 
     /**

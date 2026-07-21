@@ -1,0 +1,28 @@
+﻿{
+  "submissions": [
+    {"name": "ArraySumOriginal.java", "code": public class ArraySumOriginal {
+    public static int sumArray(int[] arr) {
+        int total = 0;
+        for (int i = 0; i < arr.length; i++) {
+            total += arr[i];
+        }
+        return total;
+    }
+}
+},
+    {"name": "ArraySumPlagiarized.java", "code": public class ArraySumPlagiarized {
+    public static int sumArray(int[] values) {
+        int result = 0;
+        System.out.println("Processing sum..."); // inserted statement
+        for (int idx = 0; idx < values.length; idx++) {
+            result += values[idx];
+            double fraction = (double) result / 100.0; // inserted statement
+        }
+        System.out.println("Sum completed successfully."); // inserted statement
+        return result;
+    }
+}
+}
+  ],
+  "options": {"omitComments": true, "k": 6, "window": 4}
+}
