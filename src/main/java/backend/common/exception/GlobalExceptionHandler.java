@@ -66,6 +66,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles the case when a requested history ID is not found or not owned by user.
+     */
+    @ExceptionHandler(HistoryNotFoundException.class)
+    public ResponseEntity<ApiErrorDTO> handleHistoryNotFound(HistoryNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    /**
      * Handles duplicate user registration attempts.
      *
      * @param ex the user already exists exception
@@ -112,6 +120,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiErrorDTO> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    /**
+     * Handles requests that require authentication but the user is not logged in.
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiErrorDTO> handleUnauthorized(UnauthorizedException ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 

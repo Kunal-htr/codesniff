@@ -130,7 +130,7 @@ public class UserController {
             java.security.Principal principal
     ) {
         if (principal == null) {
-            throw new backend.common.exception.InvalidCredentialsException("You must be logged in to change your password.");
+            throw new backend.common.exception.UnauthorizedException("You must be logged in to change your password.");
         }
         
         String email = principal.getName();
@@ -145,7 +145,7 @@ public class UserController {
             java.security.Principal principal
     ) {
         if (principal == null) {
-            throw new backend.common.exception.InvalidCredentialsException("You must be logged in to update your profile.");
+            throw new backend.common.exception.UnauthorizedException("You must be logged in to update your profile.");
         }
         
         String currentEmail = principal.getName();
