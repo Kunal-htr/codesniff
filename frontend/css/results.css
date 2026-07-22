@@ -1,0 +1,236 @@
+/* ============================================================
+   RESULTS
+   ============================================================ */
+.results {
+  margin-top: 24px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.results h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.results .summary {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+/* Base table style */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.table tbody tr {
+  transition: background var(--transition);
+}
+
+.table tbody tr:hover {
+  background: rgba(76, 175, 80, 0.03);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Similarity bar in results */
+.similarity-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sim-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-alt);
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 80px;
+}
+
+.sim-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sim-fill.low { background: var(--grad-green); }
+.sim-fill.medium { background: linear-gradient(90deg, #f59e0b, #f97316); }
+.sim-fill.high { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+.sim-pct {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 48px;
+}
+
+.sim-pct.low { color: var(--green); }
+.sim-pct.medium { color: #d97706; }
+.sim-pct.high { color: #ef4444; }
+
+/* View report button */
+.btn-report {
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: var(--radius-xs);
+  background: rgba(30, 58, 95, 0.06);
+  color: var(--navy);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.btn-report:hover {
+  background: var(--navy);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   CARD TABLES (Code vs Code Results)
+   ============================================================ */
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.card th,
+.card td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card th {
+  color: var(--text-muted);
+  font-weight: 700;
+  text-align: left;
+}
+
+.card code,
+.card pre {
+  display: block;
+  background: var(--surface-alt);
+  color: var(--text);
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-size: 13px;
+  border: 1px solid var(--border);
+}
+
+.report-back {
+  margin: 10px 0 6px;
+}
+
+.report-back .btn {
+  padding: 8px 14px;
+}
+
+/* ============================================================
+   BATCH OVERVIEW (v0.8)
+   ============================================================ */
+.batch-stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.stat-card-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 16px;
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 2px;
+  width: max-content;
+}
+
+.heatmap-cell {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  background: var(--bg-alt);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.heatmap-cell.diagonal {
+  background: #cbd5e1;
+  cursor: default;
+}
+
+.heatmap-cell:not(.diagonal):hover {
+  transform: scale(1.15);
+  z-index: 10;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.heatmap-cell.low { background: #4caf50; }
+.heatmap-cell.medium { background: #f59e0b; }
+.heatmap-cell.high { background: #ef4444; }

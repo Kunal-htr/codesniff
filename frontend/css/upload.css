@@ -1,0 +1,191 @@
+/* ============================================================
+   SPLIT PANELS (CODE VS CODE)
+   ============================================================ */
+.split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media(min-width: 900px) {
+  .split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.panel label::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--grad-green);
+}
+
+textarea {
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  transition: all var(--transition);
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+  background: #fff;
+}
+
+textarea::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ============================================================
+   ANALYSIS PARAMETERS
+   ============================================================ */
+.params label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.params input[type="number"] {
+  width: 64px;
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.params input[type="number"]:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+}
+
+/* ============================================================
+   DROPZONE (FILE VS FILE / BATCH)
+   ============================================================ */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--surface-alt);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.03), rgba(30, 58, 95, 0.03));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--green);
+  background: rgba(76, 175, 80, 0.02);
+}
+
+.dropzone:hover::before,
+.dropzone.dragover::before {
+  opacity: 1;
+}
+
+.dz-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  line-height: 1;
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dz-icon svg {
+  width: 48px;
+  height: 48px;
+  color: var(--green);
+}
+
+.dropzone p {
+  color: var(--text-secondary);
+  margin: 4px 0;
+  font-size: 15px;
+}
+
+.dropzone .muted {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   FILE LIST
+   ============================================================ */
+.filelist {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.file {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  transition: all var(--transition);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.file:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.file span:first-child {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.badge {
+  font-size: 12px;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(30, 58, 95, 0.05));
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
