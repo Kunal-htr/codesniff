@@ -6,12 +6,11 @@
 <img src="https://img.shields.io/badge/license-MIT-purple?style=for-the-badge" alt="license"/>
 <img src="https://img.shields.io/badge/status-live-success?style=for-the-badge" alt="status"/>
 
-<img src="frontend/assets/3.png" alt="{CodeSniff} Logo" width="350"/>
-### AI-Based Code Plagiarism Detector
-
+<img src="frontend/assets/3.png" alt="{CodeSniff} Logo" width="350"/>\
+**AI-Based Code Plagiarism Detector**
 **Detect code similarity instantly using K-gram tokenization and Winnowing algorithm**
 
-[🌐 Live Demo](https://codesniff.tech) · [📝 Report Bug](https://github.com/Kunal-htr/codesniff/issues) · [✨ Request Feature](https://github.com/Kunal-htr/codesniff/issues)
+[Live Demo](https://codesniff.tech) · [Report Bug](https://github.com/Kunal-htr/codesniff/issues) · [Request Feature](https://github.com/Kunal-htr/codesniff/issues)
 
 </div>
 
