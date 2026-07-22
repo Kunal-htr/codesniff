@@ -4,6 +4,8 @@ import backend.common.exception.HistoryNotFoundException;
 import backend.common.exception.UnauthorizedException;
 import backend.modules.history.dto.HistoryListItemDTO;
 import backend.modules.history.dto.PinRequestDTO;
+import backend.modules.history.dto.DailyCountDTO;
+import backend.modules.history.dto.UsageStatsDTO;
 import backend.modules.user.User;
 import backend.modules.user.UserRepository;
 
@@ -14,6 +16,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -85,6 +95,60 @@ public class HistoryController {
         AnalysisHistory history = getOwnedHistory(id, principal);
         history.setPinned(request.pinned());
         return historyRepository.save(history);
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<UsageStatsDTO> getUsageStats(Principal principal) {
+        if (principal == null) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        List<OffsetDateTime> dates = historyRepository.findAllCreatedDatesByUserId(user.getId());
+        
+        int totalAnalyses = dates.size();
+        int currentStreak = 0;
+        
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        
+        if (!dates.isEmpty()) {
+            List<LocalDate> uniqueDates = dates.stream()
+                    .map(d -> d.atZoneSameInstant(ZoneOffset.UTC).toLocalDate())
+                    .distinct()
+                    .sorted((d1, d2) -> d2.compareTo(d1))
+                    .collect(Collectors.toList());
+
+            LocalDate expectedDate = today;
+            // The streak can start from today or yesterday
+            if (!uniqueDates.isEmpty() && (uniqueDates.get(0).equals(today) || uniqueDates.get(0).equals(today.minusDays(1)))) {
+                expectedDate = uniqueDates.get(0);
+                for (LocalDate d : uniqueDates) {
+                    if (d.equals(expectedDate)) {
+                        currentStreak++;
+                        expectedDate = expectedDate.minusDays(1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        
+        LocalDate thirtyDaysAgo = today.minusDays(29);
+        
+        Map<LocalDate, Long> countsByDate = dates.stream()
+                .map(d -> d.atZoneSameInstant(ZoneOffset.UTC).toLocalDate())
+                .filter(d -> !d.isBefore(thirtyDaysAgo) && !d.isAfter(today))
+                .collect(Collectors.groupingBy(d -> d, Collectors.counting()));
+                
+        List<DailyCountDTO> dailyCounts = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = thirtyDaysAgo.plusDays(i);
+            long count = countsByDate.getOrDefault(date, 0L);
+            dailyCounts.add(new DailyCountDTO(date, (int) count));
+        }
+
+        return ResponseEntity.ok(new UsageStatsDTO(currentStreak, totalAnalyses, dailyCounts));
     }
 
     /**

@@ -29,7 +29,7 @@ export function showPageInline(name) {
     if (upload) { upload.style.display = "block"; upload.classList.add("active"); }
     if (longArticle) longArticle.style.display = "none";
     if (hero) hero.style.display = "none";
-  } else if (["login", "signup", "forgot-password", "reset-password", "verify-email", "dashboard", "profile"].includes(name)) {
+  } else if (["login", "signup", "forgot-password", "reset-password", "verify-email", "dashboard", "profile", "history", "settings", "help"].includes(name)) {
     const pageEl = $("page-" + name);
     if (pageEl) { pageEl.style.display = "block"; pageEl.classList.add("active"); }
     if (longArticle) longArticle.style.display = "none";
@@ -48,7 +48,7 @@ export function showPageInline(name) {
 
 export function routeFromHash() {
   const raw = (location.hash || "").split("?")[0].replace("#/", "").trim();
-  if (["upload", "login", "signup", "forgot-password", "reset-password", "verify-email", "dashboard", "profile"].includes(raw)) {
+  if (["upload", "login", "signup", "forgot-password", "reset-password", "verify-email", "dashboard", "profile", "history", "settings", "help"].includes(raw)) {
       return raw;
   }
   return "home";

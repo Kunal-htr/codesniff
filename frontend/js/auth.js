@@ -31,6 +31,16 @@ export async function checkAuthState() {
             profName.value = data.name || "";
             profEmail.value = data.email || "";
         }
+        
+        const displayProfName = $("displayProfName");
+        const displayProfEmail = $("displayProfEmail");
+        const profileAvatarInitial = $("profileAvatarInitial");
+        if (displayProfName && displayProfEmail && profileAvatarInitial) {
+            const dispName = data.name || data.email.split('@')[0];
+            displayProfName.textContent = dispName;
+            displayProfEmail.textContent = data.email;
+            profileAvatarInitial.textContent = dispName.charAt(0).toUpperCase();
+        }
       } else {
         logoutUI();
       }

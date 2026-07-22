@@ -1,0 +1,273 @@
+import { $ } from './utils.js';
+import { API_BASE } from './config.js';
+
+let currentSearch = "";
+let currentSortBy = "createdAt";
+let currentSortDir = "desc";
+let searchTimeout = null;
+
+export function initDashboard() {
+  const searchInput = $("historySearch");
+  const sortSelect = $("historySort");
+  const searchBtn = $("historySearchBtn");
+
+  if (searchInput && searchBtn) {
+    searchBtn.addEventListener("click", () => {
+      currentSearch = searchInput.value.trim();
+      loadHistory();
+    });
+    
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === 'Enter') {
+        currentSearch = searchInput.value.trim();
+        loadHistory();
+      }
+    });
+  }
+
+  if (sortSelect) {
+    sortSelect.addEventListener("change", (e) => {
+      const [by, dir] = e.target.value.split(",");
+      currentSortBy = by;
+      currentSortDir = dir;
+      loadHistory();
+    });
+  }
+}
+
+export async function loadHistory() {
+  const listEl = $("historyList");
+  const errEl = $("historyError");
+  if (!listEl) return;
+
+  listEl.innerHTML = `
+    <div class="history-loading" style="grid-column: 1 / -1;">
+      <div class="duotone-spinner"></div>
+      <div>Loading your history...</div>
+    </div>
+  `;
+  if (errEl) errEl.classList.add("hidden");
+
+  try {
+    let url = `/api/history?sortBy=${currentSortBy}&sortDir=${currentSortDir}`;
+    if (currentSearch) {
+      url += `&search=${encodeURIComponent(currentSearch)}`;
+    }
+
+    const res = await fetch(API_BASE + url, { credentials: 'include' });
+    if (!res.ok) {
+      throw new Error(`Failed to load history: ${res.status}`);
+    }
+
+    const data = await res.json();
+    const items = Array.isArray(data) ? data : (data.content || []);
+    renderHistory(items);
+  } catch (err) {
+    console.error("Dashboard error:", err);
+    if (errEl) {
+      errEl.textContent = "Failed to load history. Please try again.";
+      errEl.classList.remove("hidden");
+    }
+    listEl.innerHTML = "";
+  }
+}
+
+export async function initDashboardStats() {
+  const streakEl = $("dashStreak");
+  const totalEl = $("dashTotalAnalyses");
+  const graphContainer = $("dashGraphContainer");
+  if (!streakEl || !totalEl || !graphContainer) return;
+  
+  graphContainer.innerHTML = `<div style="width: 100%; text-align: center; color: var(--text-secondary); margin-bottom: 20px;">Loading stats...</div>`;
+
+  try {
+    const res = await fetch(API_BASE + "/api/history/stats", { credentials: 'include' });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText}`);
+    }
+    const data = await res.json();
+    
+    const counts = data.dailyCounts || [];
+    const recentTotal = counts.reduce((sum, d) => sum + d.count, 0);
+    
+    streakEl.textContent = recentTotal;
+    totalEl.textContent = data.totalAnalyses;
+    
+    // Draw SVG
+    if (counts.length === 0) {
+      graphContainer.innerHTML = `<div style="width: 100%; text-align: center; color: var(--text-secondary); margin-bottom: 20px;">No data available</div>`;
+      return;
+    }
+    
+    const maxCount = Math.max(...counts.map(d => d.count), 1); // ensure no div by zero
+    
+    let svgHtml = `<svg width="100%" height="100%" viewBox="0 0 1000 200" preserveAspectRatio="none" style="overflow: visible;">`;
+    
+    const barWidth = (1000 / counts.length) - 4; // leave 4 units gap
+    
+    counts.forEach((item, index) => {
+      const x = index * (1000 / counts.length) + 2;
+      // Calculate height (leave 10px top margin)
+      const height = (item.count / maxCount) * 190;
+      const y = 200 - height;
+      
+      const isZero = item.count === 0;
+      const fill = isZero ? "rgba(30, 58, 95, 0.05)" : "url(#gradBar)";
+      const title = `${item.date}: ${item.count} analyses`;
+      
+      // Minimum height of 4px for zero counts so they are visible
+      const drawHeight = isZero ? 4 : Math.max(height, 4);
+      const drawY = 200 - drawHeight;
+      
+      svgHtml += `
+        <rect x="${x}" y="${drawY}" width="${barWidth}" height="${drawHeight}" rx="4" fill="${fill}" class="chart-bar">
+          <title>${title}</title>
+        </rect>
+      `;
+    });
+    
+    svgHtml += `
+      <defs>
+        <linearGradient id="gradBar" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="var(--green)" />
+          <stop offset="100%" stop-color="var(--blue)" />
+        </linearGradient>
+      </defs>
+    </svg>`;
+    
+    graphContainer.innerHTML = svgHtml;
+    
+  } catch (err) {
+    console.error("Dashboard stats error:", err);
+    graphContainer.innerHTML = `<div style="width: 100%; text-align: center; color: #d32f2f; margin-bottom: 20px;">Failed to load graph: ${err.message}</div>`;
+  }
+}
+
+function renderHistory(items) {
+  const listEl = $("historyList");
+  if (!listEl) return;
+
+  if (!items || items.length === 0) {
+    if (currentSearch) {
+      listEl.innerHTML = `
+        <div class="history-empty" style="grid-column: 1 / -1;">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <h3>No matches found</h3>
+          <p>No history records match "${currentSearch}"</p>
+        </div>
+      `;
+    } else {
+      listEl.innerHTML = `
+        <div class="history-empty" style="grid-column: 1 / -1;">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <h3>No analyses yet</h3>
+          <p>Run your first comparison to see history here.</p>
+          <a href="#/upload" class="btn btn-primary" style="display:inline-flex;">Start Analysis</a>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  listEl.innerHTML = items.map(item => {
+    const sim = item.highestSimilarity || 0;
+    const simDisplay = Number.isInteger(sim) ? sim : parseFloat(sim.toFixed(1));
+    let badgeClass = "low";
+    if (sim >= 80) badgeClass = "high";
+    else if (sim >= 50) badgeClass = "medium";
+
+    const dateStr = new Date(item.createdAt).toLocaleDateString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+    const maxFiles = 3;
+    const fileNames = item.fileNames || [];
+    const displayedFiles = fileNames.slice(0, maxFiles);
+    const extraFiles = fileNames.length - maxFiles;
+
+    const filesHtml = displayedFiles.map(f => `
+      <div class="file-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        <span>${f}</span>
+      </div>
+    `).join('');
+
+    return `
+      <div class="history-card" data-id="${item.id}">
+        <div class="card-header">
+          <span class="sim-badge ${badgeClass}">${simDisplay}% Match</span>
+          <span class="card-date">${dateStr}</span>
+        </div>
+        <div class="card-files">
+          ${filesHtml}
+          ${extraFiles > 0 ? `<div class="file-extra">+${extraFiles} more file${extraFiles > 1 ? 's' : ''}</div>` : ''}
+        </div>
+        <div class="card-actions">
+          <button class="card-btn view-btn" data-id="${item.id}" title="View details (Phase D2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            View
+          </button>
+          <button class="card-btn delete delete-btn" data-id="${item.id}" title="Delete record">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Bind events
+  listEl.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.currentTarget.dataset.id;
+      if (confirm("Are you sure you want to delete this analysis record?")) {
+        await deleteHistory(id);
+      }
+    });
+  });
+
+  listEl.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      alert("Details view will be implemented in Phase D2!");
+    });
+  });
+}
+
+async function deleteHistory(id) {
+  try {
+    const res = await fetch(API_BASE + `/api/history/${id}`, { method: 'DELETE', credentials: 'include' });
+    if (!res.ok) throw new Error("Delete failed");
+    
+    // Remove from UI instantly
+    const card = document.querySelector(`.history-card[data-id="${id}"]`);
+    if (card) {
+      card.remove();
+    }
+    
+    // If list is empty after delete, reload to show empty state
+    const listEl = $("historyList");
+    if (listEl && listEl.querySelectorAll('.history-card').length === 0) {
+      loadHistory();
+    }
+  } catch (err) {
+    console.error("Failed to delete", err);
+    alert("Failed to delete record. Please try again.");
+  }
+}

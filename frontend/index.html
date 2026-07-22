@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="./css/results.css" />
   <link rel="stylesheet" href="./css/diff.css" />
   <link rel="stylesheet" href="./css/health.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
 </head>
 
 <body>
@@ -55,8 +56,9 @@
             <button id="avatarBtn" style="border:none; background:transparent; padding:0; display:flex; align-items:center; cursor:pointer;"><span id="avatarName" style="font-weight: 500; color: var(--navy);">User</span> &nbsp;<span style="color: var(--text-secondary);">▾</span></button>
             <div class="dropdown-menu hidden" id="avatarDropdownMenu">
               <a href="#/dashboard" data-page="dashboard">Dashboard</a>
-              <a href="#/profile" data-page="profile">Edit Profile</a>
-              <hr>
+              <a href="#/profile" data-page="profile">Profile</a>
+              <a href="#/help" data-page="help">Help</a>
+              <hr style="margin: 4px 0; border: none; border-top: 1px solid var(--border);">
               <a href="#" id="btnLogout">Logout</a>
             </div>
           </div>
@@ -522,15 +524,90 @@
     <!-- ====== DASHBOARD PAGE ====== -->
     <section id="page-dashboard" class="page">
       <h2 class="page-title">Dashboard</h2>
-      <div class="card">
-        <h3>Welcome, <span id="dashEmail" style="color: var(--primary);"></span>!</h3>
-        <br>
-        <p class="muted">Your analysis history will appear here soon.</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
+        <!-- Recent Analyses Card -->
+        <div class="card" style="padding: 24px; text-align: center;">
+          <h3 style="color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Analyses (Last 30 Days)</h3>
+          <div id="dashStreak" style="font-size: 32px; font-weight: 700; color: var(--green);">0</div>
+        </div>
+        <!-- Total Analyses Card -->
+        <div class="card" style="padding: 24px; text-align: center;">
+          <h3 style="color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Total Analyses</h3>
+          <div id="dashTotalAnalyses" style="font-size: 32px; font-weight: 700; color: var(--navy);">0</div>
+        </div>
       </div>
+      
+      <!-- Graph Card -->
+      <div class="card" style="padding: 24px; margin-bottom: 32px;">
+        <h3 style="margin-bottom: 24px; color: var(--navy);">Usage History (Last 30 Days)</h3>
+        <div id="dashGraphContainer" style="width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;">
+          <!-- SVG injected here via JS -->
+        </div>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="#/history" class="btn btn-primary">View Full History</a>
+      </div>
+    </section>
+
+    <!-- ====== HISTORY PAGE ====== -->
+    <section id="page-history" class="page">
+      <div class="dashboard-header-bar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <a href="#/dashboard" class="btn btn-secondary" style="padding: 8px 12px; display: flex; align-items: center; gap: 8px; border-radius: 20px; background: #fff; border: 1px solid var(--border); color: var(--navy); text-decoration: none; font-weight: 500; font-size: 14px; transition: all 0.2s ease;" onmouseover="this.style.borderColor='var(--green)'; this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--navy)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back
+          </a>
+          <h2 class="page-title" style="margin: 0;">History</h2>
+        </div>
+        
+        <div class="history-controls">
+          <div class="search-wrap" style="display: flex; align-items: stretch;">
+            <div style="position: relative;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="historySearch" class="search-input" placeholder="Search history..." autocomplete="off" style="border-top-right-radius: 0; border-bottom-right-radius: 0; height: 100%; border-right: none;" />
+            </div>
+            <button class="btn btn-primary" id="historySearchBtn" style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 20px; font-size: 14px; margin: 0; border: none; box-shadow: none;">Search</button>
+          </div>
+          <div class="sort-wrap">
+            <select id="historySort" class="sort-select" style="height: 100%;">
+              <option value="createdAt,desc">Newest first</option>
+              <option value="createdAt,asc">Oldest first</option>
+              <option value="highestSimilarity,desc">Highest similarity</option>
+              <option value="highestSimilarity,asc">Lowest similarity</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="historyError" class="history-error hidden"></div>
+      
+      <div id="historyList" class="history-grid">
+        <div class="history-loading">Loading your history...</div>
+      </div>
+
     </section>
 
     <!-- ====== PROFILE PAGE ====== -->
     <section id="page-profile" class="page">
+      <h2 class="page-title" style="text-align:center; margin-bottom: 32px;">Profile</h2>
+      
+      <div class="card" style="max-width: 600px; margin: 0 auto; padding: 32px; text-align: center;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--grad-brand); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin-bottom: 24px;" id="profileAvatarInitial">?</div>
+        
+        <h3 id="displayProfName" style="font-size: 24px; color: var(--navy); margin-bottom: 8px;">User Name</h3>
+        <p id="displayProfEmail" style="color: var(--text-secondary); margin-bottom: 32px;">user@example.com</p>
+        
+        <a href="#/settings" class="btn btn-primary" style="display: inline-flex; justify-content: center;">Edit Profile Settings</a>
+      </div>
+    </section>
+
+    <!-- ====== SETTINGS PAGE ====== -->
+    <section id="page-settings" class="page">
       <h2 class="page-title" style="text-align:center; margin-bottom: 32px;">Settings</h2>
       
       <div class="profile-container">
@@ -573,6 +650,28 @@
               <button type="submit" id="btnProfileSubmit" class="btn btn-primary" style="width:100%; justify-content:center;">Change Password</button>
             </form>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== HELP PAGE ====== -->
+    <section id="page-help" class="page">
+      <h2 class="page-title">Help & FAQ</h2>
+      
+      <div class="card" style="padding: 32px;">
+        <div style="margin-bottom: 24px;">
+          <h3 style="color: var(--navy); margin-bottom: 8px;">How does CodeSniff work? (Placeholder)</h3>
+          <p style="color: var(--text-secondary); line-height: 1.6;">CodeSniff uses a hybrid approach leveraging AST (Abstract Syntax Tree) parsing and tokenized k-gram fingerprinting to accurately detect Type 1 to 4 code clones.</p>
+        </div>
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border);">
+        <div style="margin-bottom: 24px;">
+          <h3 style="color: var(--navy); margin-bottom: 8px;">How do I read similarity scores? (Placeholder)</h3>
+          <p style="color: var(--text-secondary); line-height: 1.6;">The similarity score is a percentage reflecting the structural and token overlap between the queried file and the reference codebases. Higher percentage indicates higher similarity.</p>
+        </div>
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border);">
+        <div>
+          <h3 style="color: var(--navy); margin-bottom: 8px;">What do the verdict levels mean? (Placeholder)</h3>
+          <p style="color: var(--text-secondary); line-height: 1.6;">Verdicts are categorized as Low (green), Medium (orange), and High (red) similarity. High generally indicates a strong likelihood of cloned code.</p>
         </div>
       </div>
     </section>

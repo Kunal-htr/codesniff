@@ -5,6 +5,7 @@ import { initUpload } from './upload.js';
 import { initResults } from './results.js';
 import { initDiffViewer } from './diffViewer.js';
 import { initBackendCheck } from './health.js';
+import { initDashboard, loadHistory, initDashboardStats } from './dashboard.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   checkAuthState();
@@ -96,13 +97,37 @@ document.addEventListener("DOMContentLoaded", () => {
   initResults();
   initDiffViewer();
   initBackendCheck();
+  initDashboard();
+
+  // Track current route to prevent duplicate history loads
+  let currentRoute = null;
 
   // Handle SPA routing on hash change
   window.addEventListener("hashchange", () => {
-    showPageInline(routeFromHash());
+    const route = routeFromHash();
+    showPageInline(route);
+    if (route === "history" && currentRoute !== "history") {
+      loadHistory();
+    }
+    if (route === "dashboard" && currentRoute !== "dashboard") {
+      initDashboardStats();
+    }
+    currentRoute = route;
   });
 
   // Guard to ensure correct page on load
-  const guard = setInterval(() => showPageInline(routeFromHash()), 120);
+  const initialRoute = routeFromHash();
+  const guard = setInterval(() => {
+    const route = routeFromHash();
+    showPageInline(route);
+    if (route === "history" && currentRoute !== "history") {
+      loadHistory();
+      currentRoute = route;
+    }
+    if (route === "dashboard" && currentRoute !== "dashboard") {
+      initDashboardStats();
+      currentRoute = route;
+    }
+  }, 120);
   setTimeout(() => clearInterval(guard), 1800);
 });

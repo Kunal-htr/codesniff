@@ -17,4 +17,7 @@ public interface AnalysisHistoryRepository extends JpaRepository<AnalysisHistory
 
     @org.springframework.data.jpa.repository.Query("SELECT h FROM AnalysisHistory h WHERE h.userId = :userId AND (LOWER(h.batchId) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(cast(h.fileNames as string)) LIKE LOWER(CONCAT('%', :search, '%')))")
     org.springframework.data.domain.Page<AnalysisHistory> searchHistory(@org.springframework.data.repository.query.Param("userId") UUID userId, @org.springframework.data.repository.query.Param("search") String search, org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT h.createdAt FROM AnalysisHistory h WHERE h.userId = :userId ORDER BY h.createdAt DESC")
+    List<java.time.OffsetDateTime> findAllCreatedDatesByUserId(@org.springframework.data.repository.query.Param("userId") UUID userId);
 }
