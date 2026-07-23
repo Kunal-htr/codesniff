@@ -5,13 +5,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description"
-    content="CodeSniff — AI-based code plagiarism detector using K-gram tokenization and Winnowing algorithm. Detect code similarity in Java source files instantly." />
+    content="Detect Java source code clones and structural plagiarism instantly. By leveraging AST-aware hybrid scoring, LCS alignment, and tokenized K-gram Winnowing, CodeSniff uncovers Type 1–4 clones—even when logic is heavily disguised." />
   <meta name="theme-color" content="#1e3a5f" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="CodeSniff — AI-Based Code Plagiarism Detector" />
+  <meta property="og:title" content="CodeSniff | Hybrid Code Similarity Analyzer" />
   <meta property="og:description"
-    content="Detect code similarity instantly using token-based structural analysis with K-gram fingerprinting and Winnowing algorithm." />
+    content="Detect Java source code clones and structural plagiarism instantly. By leveraging AST-aware hybrid scoring, LCS alignment, and tokenized K-gram Winnowing, CodeSniff uncovers Type 1–4 clones—even when logic is heavily disguised." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://codesniff.tech" />
   <meta property="og:image" content="assets/4.png" />
@@ -21,7 +21,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/favicon.png">
 
-  <title>codesniff</title>
+  <title>CodeSniff | Hybrid Code Similarity Analyzer</title>
   <link rel="stylesheet" href="./css/core.css" />
   <link rel="stylesheet" href="./css/layout.css" />
   <link rel="stylesheet" href="./css/components.css" />
@@ -53,7 +53,10 @@
         </div>
         <div id="nav-logged-in" class="nav-auth hidden">
           <div class="avatar-dropdown">
-            <button id="avatarBtn" style="border:none; background:transparent; padding:0; display:flex; align-items:center; cursor:pointer;"><span id="avatarName" style="font-weight: 500; color: var(--navy);">User</span> &nbsp;<span style="color: var(--text-secondary);">▾</span></button>
+            <button id="avatarBtn"
+              style="border:none; background:transparent; padding:0; display:flex; align-items:center; cursor:pointer;"><span
+                id="avatarName" style="font-weight: 500; color: var(--navy);">User</span> &nbsp;<span
+                style="color: var(--text-secondary);">▾</span></button>
             <div class="dropdown-menu hidden" id="avatarDropdownMenu">
               <a href="#/dashboard" data-page="dashboard">Dashboard</a>
               <a href="#/profile" data-page="profile">Profile</a>
@@ -80,7 +83,9 @@
       <div class="hero">
         <div class="hero-content">
           <h1>Hybrid Code<br>Similarity Analyzer</h1>
-          <p class="subtitle">Detect source code clones and structural plagiarism instantly. Leveraging AST-aware hybrid scoring and tokenized K-gram fingerprints to uncover Type 1–4 clones with pinpoint accuracy.</p>
+          <p class="subtitle">Detect Java source code clones and structural plagiarism instantly. By leveraging
+            AST-aware hybrid scoring, LCS alignment, and tokenized K-gram Winnowing, CodeSniff uncovers Type 1–4 clones
+            even when logic is heavily disguised.</p>
           <div class="hero-actions">
             <button id="btnGetStarted" class="btn btn-primary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -126,8 +131,8 @@
             </svg>
           </div>
           <h3>Structural Analysis</h3>
-          <p>Tokenization and k-gram fingerprints resist renaming, statement reordering, and comment-removal tricks.
-            Safely detects disguised plagiarism that text matchers miss.</p>
+          <p>AST parsing and tokenized k-gram fingerprints resist renaming, statement reordering, and comment-removal
+            tricks. Safely detects disguised plagiarism that text matchers miss.</p>
         </div>
         <div class="card">
           <div class="card-icon">
@@ -139,7 +144,7 @@
             </svg>
           </div>
           <h3>Hybrid Scoring</h3>
-          <p>Combines Jaccard fingerprint similarity, coverage metrics, LCS statement alignment, and AST structural
+          <p>Combines Winnowing fingerprint similarity, coverage metrics, LCS statement alignment, and AST structural
             comparison for reliable, nuanced similarity scores.</p>
         </div>
         <div class="card">
@@ -152,9 +157,9 @@
               <line x1="16" y1="17" x2="8" y2="17" />
             </svg>
           </div>
-          <h3>Clear Reports</h3>
-          <p>Side-by-side highlighting with jump-between-matches navigation makes reviews fast. Clone-type
-            classification explains exactly why two files matched.</p>
+          <h3>History & Exports</h3>
+          <p>Side-by-side highlighting makes reviews fast. Authenticated users can track analysis history, search past
+            runs, and export reports in PDF, CSV, or HTML.</p>
         </div>
       </div>
 
@@ -222,13 +227,13 @@
             <div class="summary">
               <ul>
                 <li><strong>Advanced Detection:</strong> Catches identifier renames and operator divergence (e.g.,
-                  max-finding vs min-finding).</li>
+                  max-finding vs min-finding) using AST and Winnowing algorithms.</li>
                 <li><strong>Contextual Explanations:</strong> Plain-English clone-type classifications (e.g., "Type-3
                   Clone (Logic Mutation)").</li>
-                <li><strong>Scalable Batch Analytics:</strong> Heatmaps and verdict-count overviews for fast scanning of
-                  cohorts.</li>
-                <li><strong>Multi-Format Exports:</strong> Generate structured similarity reports in CSV, HTML, or PDF
-                  formats.</li>
+                <li><strong>Cloud Persistence:</strong> Optional secure authentication to save analysis history to a
+                  PostgreSQL database for later review.</li>
+                <li><strong>Multi-Format Exports:</strong> Generate and download structured similarity reports in CSV,
+                  HTML, or PDF formats.</li>
               </ul>
             </div>
 
@@ -424,11 +429,13 @@
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" class="form-control" style="width:100%; padding: 8px;" required />
           </div>
-          <button type="submit" id="btnLoginSubmit" class="btn btn-primary" style="width:100%; justify-content:center;">Login</button>
+          <button type="submit" id="btnLoginSubmit" class="btn btn-primary"
+            style="width:100%; justify-content:center;">Login</button>
         </form>
         <p class="auth-links text-center" style="margin-top: 20px; text-align: center; color: var(--text-secondary);">
           <a href="#/forgot-password" style="color: var(--green);">Forgot password?</a><br><br>
-          New account? <a href="#/signup" style="color: var(--green); font-weight: 600; text-decoration: none;">Sign Up</a>
+          New account? <a href="#/signup" style="color: var(--green); font-weight: 600; text-decoration: none;">Sign
+            Up</a>
         </p>
       </div>
     </section>
@@ -437,39 +444,59 @@
     <section id="page-signup" class="page">
       <div class="auth-card card">
         <h2 class="page-title" style="text-align:center; margin-bottom: 8px;">Register</h2>
-        <p style="text-align:center; color: var(--text-secondary); margin-bottom: 24px; font-size: 14px;">Create your account</p>
+        <p style="text-align:center; color: var(--text-secondary); margin-bottom: 24px; font-size: 14px;">Create your
+          account</p>
         <form id="signupForm" class="auth-form">
           <div class="form-group" style="margin-bottom: 16px;">
             <label for="signupName">Name*</label>
-            <input type="text" id="signupName" class="form-control" style="width:100%; padding: 10px; border-radius: var(--radius-xs);" placeholder="Full name" required />
+            <input type="text" id="signupName" class="form-control"
+              style="width:100%; padding: 10px; border-radius: var(--radius-xs);" placeholder="Full name" required />
           </div>
           <div class="form-group" style="margin-bottom: 16px;">
             <label for="signupEmail">Email*</label>
-            <input type="email" id="signupEmail" class="form-control" style="width:100%; padding: 10px; border-radius: var(--radius-xs);" placeholder="Enter your email" required />
+            <input type="email" id="signupEmail" class="form-control"
+              style="width:100%; padding: 10px; border-radius: var(--radius-xs);" placeholder="Enter your email"
+              required />
           </div>
           <div class="form-group" style="margin-bottom: 16px;">
             <label for="signupPassword">Password*</label>
             <div style="position: relative;">
-              <input type="password" id="signupPassword" class="form-control" style="width:100%; padding: 10px; padding-right: 36px; border-radius: var(--radius-xs);" placeholder="Create password" required minlength="8" />
-              <button type="button" class="pwd-toggle" data-target="signupPassword" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <input type="password" id="signupPassword" class="form-control"
+                style="width:100%; padding: 10px; padding-right: 36px; border-radius: var(--radius-xs);"
+                placeholder="Create password" required minlength="8" />
+              <button type="button" class="pwd-toggle" data-target="signupPassword"
+                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
               </button>
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 24px;">
             <label for="signupConfirmPassword">Confirm Password*</label>
             <div style="position: relative;">
-              <input type="password" id="signupConfirmPassword" class="form-control" style="width:100%; padding: 10px; padding-right: 36px; border-radius: var(--radius-xs);" placeholder="Confirm password" required />
-              <button type="button" class="pwd-toggle" data-target="signupConfirmPassword" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <input type="password" id="signupConfirmPassword" class="form-control"
+                style="width:100%; padding: 10px; padding-right: 36px; border-radius: var(--radius-xs);"
+                placeholder="Confirm password" required />
+              <button type="button" class="pwd-toggle" data-target="signupConfirmPassword"
+                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
               </button>
             </div>
-            <small id="signupPwdError" style="display:none; color: #d32f2f; margin-top:4px; font-size: 13px;">Passwords do not match.</small>
+            <small id="signupPwdError" style="display:none; color: #d32f2f; margin-top:4px; font-size: 13px;">Passwords
+              do not match.</small>
           </div>
-          <button type="submit" id="btnSignupSubmit" class="nav-link active" style="width:100%; justify-content:center; display:flex; align-items:center; border:none; cursor:pointer;">Register</button>
+          <button type="submit" id="btnSignupSubmit" class="nav-link active"
+            style="width:100%; justify-content:center; display:flex; align-items:center; border:none; cursor:pointer;">Register</button>
         </form>
-        <p class="auth-links text-center" style="margin-top: 24px; text-align: center; color: var(--text-secondary); font-size: 14px;">
-          Already registered? <a href="#/login" style="color: var(--green); font-weight: 600; text-decoration: none;">Sign In</a>
+        <p class="auth-links text-center"
+          style="margin-top: 24px; text-align: center; color: var(--text-secondary); font-size: 14px;">
+          Already registered? <a href="#/login"
+            style="color: var(--green); font-weight: 600; text-decoration: none;">Sign In</a>
         </p>
       </div>
     </section>
@@ -493,13 +520,15 @@
     <section id="page-forgot-password" class="page">
       <div class="auth-card card">
         <h2 class="page-title" style="text-align:center;">Reset Password</h2>
-        <p style="text-align:center; color: var(--text-secondary); margin-bottom: 20px;">Enter your email and we'll send you a reset link.</p>
+        <p style="text-align:center; color: var(--text-secondary); margin-bottom: 20px;">Enter your email and we'll send
+          you a reset link.</p>
         <form id="forgotForm" class="auth-form">
           <div class="form-group" style="margin-bottom: 24px;">
             <label for="forgotEmail">Email</label>
             <input type="email" id="forgotEmail" class="form-control" style="width:100%; padding: 8px;" required />
           </div>
-          <button type="submit" id="btnForgotSubmit" class="btn btn-primary" style="width:100%; justify-content:center;">Send Reset Link</button>
+          <button type="submit" id="btnForgotSubmit" class="btn btn-primary"
+            style="width:100%; justify-content:center;">Send Reset Link</button>
         </form>
         <p class="auth-links text-center" style="margin-top: 20px; text-align: center;">
           <a href="#/login" style="color: var(--primary);">Back to Login</a>
@@ -514,9 +543,11 @@
         <form id="resetForm" class="auth-form">
           <div class="form-group" style="margin-bottom: 24px;">
             <label for="resetPassword">New Password</label>
-            <input type="password" id="resetPassword" class="form-control" style="width:100%; padding: 8px;" required minlength="8" />
+            <input type="password" id="resetPassword" class="form-control" style="width:100%; padding: 8px;" required
+              minlength="8" />
           </div>
-          <button type="submit" id="btnResetSubmit" class="btn btn-primary" style="width:100%; justify-content:center;">Update Password</button>
+          <button type="submit" id="btnResetSubmit" class="btn btn-primary"
+            style="width:100%; justify-content:center;">Update Password</button>
         </form>
       </div>
     </section>
@@ -524,28 +555,34 @@
     <!-- ====== DASHBOARD PAGE ====== -->
     <section id="page-dashboard" class="page">
       <h2 class="page-title">Dashboard</h2>
-      
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
+
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
         <!-- Recent Analyses Card -->
         <div class="card" style="padding: 24px; text-align: center;">
-          <h3 style="color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Analyses (Last 30 Days)</h3>
+          <h3
+            style="color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+            Analyses (Last 30 Days)</h3>
           <div id="dashStreak" style="font-size: 32px; font-weight: 700; color: var(--green);">0</div>
         </div>
         <!-- Total Analyses Card -->
         <div class="card" style="padding: 24px; text-align: center;">
-          <h3 style="color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Total Analyses</h3>
+          <h3
+            style="color: var(--text-secondary); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+            Total Analyses</h3>
           <div id="dashTotalAnalyses" style="font-size: 32px; font-weight: 700; color: var(--navy);">0</div>
         </div>
       </div>
-      
+
       <!-- Graph Card -->
       <div class="card" style="padding: 24px; margin-bottom: 32px;">
         <h3 style="margin-bottom: 24px; color: var(--navy);">Usage History (Last 30 Days)</h3>
-        <div id="dashGraphContainer" style="width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;">
+        <div id="dashGraphContainer"
+          style="width: 100%; height: 200px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;">
           <!-- SVG injected here via JS -->
         </div>
       </div>
-      
+
       <div style="text-align: center;">
         <a href="#/history" class="btn btn-primary">View Full History</a>
       </div>
@@ -553,31 +590,43 @@
 
     <!-- ====== HISTORY PAGE ====== -->
     <section id="page-history" class="page">
-      <div class="dashboard-header-bar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div class="dashboard-header-bar"
+        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 16px;">
-          <a href="#/dashboard" class="btn btn-secondary back-btn" style="padding: 4px 10px; display: flex; align-items: center; gap: 6px; border-radius: 12px; background: #fff; border: 1px solid var(--border); color: var(--navy); text-decoration: none; font-weight: 500; font-size: 13px; transition: all 0.2s ease;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <a href="#/dashboard" class="btn btn-secondary back-btn"
+            style="padding: 4px 10px; display: flex; align-items: center; gap: 6px; border-radius: 12px; background: #fff; border: 1px solid var(--border); color: var(--navy); text-decoration: none; font-weight: 500; font-size: 13px; transition: all 0.2s ease;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
             Back
           </a>
           <h2 class="page-title" style="margin: 0;">History</h2>
         </div>
-        
+
         <div class="history-controls">
           <div class="search-wrap" style="display: flex; align-items: stretch;">
             <div style="position: relative;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none;">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <input type="text" id="historySearch" class="search-input" placeholder="Search history..." autocomplete="off" style="border-top-right-radius: 0; border-bottom-right-radius: 0; height: 100%; border-right: none;" />
+              <input type="text" id="historySearch" class="search-input" placeholder="Search history..."
+                autocomplete="off"
+                style="border-top-right-radius: 0; border-bottom-right-radius: 0; height: 100%; border-right: none;" />
             </div>
-            <button class="btn btn-primary" id="historySearchBtn" style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 20px; font-size: 14px; margin: 0; border: none; box-shadow: none;">Search</button>
+            <button class="btn btn-primary" id="historySearchBtn"
+              style="border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 20px; font-size: 14px; margin: 0; border: none; box-shadow: none;">Search</button>
           </div>
           <div class="sort-wrap">
             <div class="custom-dropdown" id="sortDropdownContainer">
-              <button class="sort-select dropdown-trigger" id="sortDropdownBtn" style="background-image: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px;">
+              <button class="sort-select dropdown-trigger" id="sortDropdownBtn"
+                style="background-image: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px;">
                 <span id="sortDropdownLabel">Newest first</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
               </button>
               <div class="dropdown-menu hidden" id="sortDropdownMenu">
                 <div class="dropdown-item selected" data-value="createdAt,desc">Newest first</div>
@@ -591,7 +640,7 @@
       </div>
 
       <div id="historyError" class="history-error hidden"></div>
-      
+
       <div id="historyList" class="history-grid">
         <div class="history-loading">Loading your history...</div>
       </div>
@@ -599,19 +648,23 @@
       <!-- History Details Modal -->
       <div id="historyDetailsModal" class="modal hidden">
         <div class="modal-content" style="max-width: 800px; width: 90%;">
-          <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
+          <div class="modal-header"
+            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
             <h2 id="modalHistoryDate" style="margin: 0; font-size: 20px;">Analysis Details</h2>
-            <button id="closeHistoryModal" class="btn btn-secondary" style="padding: 6px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer;">
+            <button id="closeHistoryModal" class="btn btn-secondary"
+              style="padding: 6px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
-          
+
           <div style="display: flex; gap: 24px; margin-bottom: 24px;">
             <div style="flex: 1;">
-              <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); text-transform: uppercase;">Overall Summary</h3>
+              <h3
+                style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); text-transform: uppercase;">
+                Overall Summary</h3>
               <div style="display: flex; gap: 16px;">
                 <div class="card" style="padding: 16px; flex: 1; text-align: center; border: 1px solid var(--border);">
                   <div style="font-size: 12px; color: var(--text-secondary);">Highest Match</div>
@@ -624,9 +677,11 @@
               </div>
             </div>
           </div>
-          
-          <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); text-transform: uppercase;">Pair Comparisons</h3>
-          <div id="modalPairsList" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 8px;">
+
+          <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); text-transform: uppercase;">
+            Pair Comparisons</h3>
+          <div id="modalPairsList"
+            style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 8px;">
             <!-- Rendered via JS -->
           </div>
         </div>
@@ -636,21 +691,24 @@
     <!-- ====== PROFILE PAGE ====== -->
     <section id="page-profile" class="page">
       <h2 class="page-title" style="text-align:center; margin-bottom: 32px;">Profile</h2>
-      
+
       <div class="card" style="max-width: 600px; margin: 0 auto; padding: 32px; text-align: center;">
-        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--grad-brand); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin-bottom: 24px;" id="profileAvatarInitial">?</div>
-        
+        <div
+          style="width: 80px; height: 80px; border-radius: 50%; background: var(--grad-brand); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin-bottom: 24px;"
+          id="profileAvatarInitial">?</div>
+
         <h3 id="displayProfName" style="font-size: 24px; color: var(--navy); margin-bottom: 8px;">User Name</h3>
         <p id="displayProfEmail" style="color: var(--text-secondary); margin-bottom: 32px;">user@example.com</p>
-        
-        <a href="#/settings" class="btn btn-primary" style="display: inline-flex; justify-content: center;">Edit Profile Settings</a>
+
+        <a href="#/settings" class="btn btn-primary" style="display: inline-flex; justify-content: center;">Edit Profile
+          Settings</a>
       </div>
     </section>
 
     <!-- ====== SETTINGS PAGE ====== -->
     <section id="page-settings" class="page">
       <h2 class="page-title" style="text-align:center; margin-bottom: 32px;">Settings</h2>
-      
+
       <div class="profile-container">
         <aside class="profile-sidebar">
           <ul class="profile-nav">
@@ -658,7 +716,7 @@
             <li class="profile-nav-item" data-target="prof-security">Security</li>
           </ul>
         </aside>
-        
+
         <div class="profile-content card">
           <!-- Personal Details Section -->
           <div id="prof-personal" class="profile-section active">
@@ -666,13 +724,15 @@
             <form id="updateProfileForm" class="auth-form">
               <div class="form-group" style="margin-bottom: 16px;">
                 <label for="profName">Name</label>
-                <input type="text" id="profName" class="form-control" style="width:100%; padding: 10px;" placeholder="Your Name" />
+                <input type="text" id="profName" class="form-control" style="width:100%; padding: 10px;"
+                  placeholder="Your Name" />
               </div>
               <div class="form-group" style="margin-bottom: 24px;">
                 <label for="profEmail">Email</label>
                 <input type="email" id="profEmail" class="form-control" style="width:100%; padding: 10px;" required />
               </div>
-              <button type="submit" id="btnUpdateProfileSubmit" class="btn btn-primary" style="width:100%; justify-content:center;">Update Profile</button>
+              <button type="submit" id="btnUpdateProfileSubmit" class="btn btn-primary"
+                style="width:100%; justify-content:center;">Update Profile</button>
             </form>
           </div>
 
@@ -682,13 +742,16 @@
             <form id="profileForm" class="auth-form">
               <div class="form-group" style="margin-bottom: 16px;">
                 <label for="profCurrentPass">Current Password</label>
-                <input type="password" id="profCurrentPass" class="form-control" style="width:100%; padding: 10px;" required />
+                <input type="password" id="profCurrentPass" class="form-control" style="width:100%; padding: 10px;"
+                  required />
               </div>
               <div class="form-group" style="margin-bottom: 24px;">
                 <label for="profNewPass">New Password</label>
-                <input type="password" id="profNewPass" class="form-control" style="width:100%; padding: 10px;" required minlength="8" />
+                <input type="password" id="profNewPass" class="form-control" style="width:100%; padding: 10px;" required
+                  minlength="8" />
               </div>
-              <button type="submit" id="btnProfileSubmit" class="btn btn-primary" style="width:100%; justify-content:center;">Change Password</button>
+              <button type="submit" id="btnProfileSubmit" class="btn btn-primary"
+                style="width:100%; justify-content:center;">Change Password</button>
             </form>
           </div>
         </div>
@@ -698,21 +761,26 @@
     <!-- ====== HELP PAGE ====== -->
     <section id="page-help" class="page">
       <h2 class="page-title">Help & FAQ</h2>
-      
+
       <div class="card" style="padding: 32px;">
         <div style="margin-bottom: 24px;">
           <h3 style="color: var(--navy); margin-bottom: 8px;">How does CodeSniff work? (Placeholder)</h3>
-          <p style="color: var(--text-secondary); line-height: 1.6;">CodeSniff uses a hybrid approach leveraging AST (Abstract Syntax Tree) parsing and tokenized k-gram fingerprinting to accurately detect Type 1 to 4 code clones.</p>
+          <p style="color: var(--text-secondary); line-height: 1.6;">CodeSniff uses a hybrid approach leveraging AST
+            (Abstract Syntax Tree) parsing and tokenized k-gram fingerprinting to accurately detect Type 1 to 4 code
+            clones.</p>
         </div>
         <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border);">
         <div style="margin-bottom: 24px;">
           <h3 style="color: var(--navy); margin-bottom: 8px;">How do I read similarity scores? (Placeholder)</h3>
-          <p style="color: var(--text-secondary); line-height: 1.6;">The similarity score is a percentage reflecting the structural and token overlap between the queried file and the reference codebases. Higher percentage indicates higher similarity.</p>
+          <p style="color: var(--text-secondary); line-height: 1.6;">The similarity score is a percentage reflecting the
+            structural and token overlap between the queried file and the reference codebases. Higher percentage
+            indicates higher similarity.</p>
         </div>
         <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border);">
         <div>
           <h3 style="color: var(--navy); margin-bottom: 8px;">What do the verdict levels mean? (Placeholder)</h3>
-          <p style="color: var(--text-secondary); line-height: 1.6;">Verdicts are categorized as Low (green), Medium (orange), and High (red) similarity. High generally indicates a strong likelihood of cloned code.</p>
+          <p style="color: var(--text-secondary); line-height: 1.6;">Verdicts are categorized as Low (green), Medium
+            (orange), and High (red) similarity. High generally indicates a strong likelihood of cloned code.</p>
         </div>
       </div>
     </section>
@@ -761,11 +829,14 @@
       <!-- Column 3: Tech Stack -->
       <div class="col">
         <h4>Core Tech Stack</h4>
-        <ul>
-          <li>Spring Boot API</li>
+        <ul style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px;">
+          <li>Spring Boot 3</li>
+          <li>Java 17</li>
+          <li>Vanilla JS (ES6)</li>
+          <li>PostgreSQL</li>
+          <li>AST & Winnowing</li>
+          <li>LCS Algorithm</li>
           <li>K-Gram Tokenizer</li>
-          <li>Winnowing Engine</li>
-          <li>In-Memory Report Cache</li>
         </ul>
       </div>
 
@@ -774,7 +845,7 @@
     <div class="footer-bottom">
       <div class="footer-bottom-inner">
         <div class="copyright">
-          © 2024–2026 <strong>CodeSniff</strong>. Engineered for academic integrity & code excellence.
+          © 2025–2026 <strong>CodeSniff</strong>. Engineered for academic integrity & code excellence.
         </div>
         <div class="footer-pills-container">
           <div class="email-pill">

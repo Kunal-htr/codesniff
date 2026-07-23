@@ -7,6 +7,15 @@ and this project adheres to Semantic Versioning.
 
 ---
 
+## [v2.0.0] - 2026-07-23
+
+### Added
+- **Database & Storage Integration**: Migrated temporary in-memory history to a persistent PostgreSQL database for authenticated users.
+- **History Dashboard**: Created a dedicated, paginated History page for users to view, search, sort, and pin past analysis runs.
+- **Analysis Persistence**: Automatically saves analysis results (including batch summaries and detailed pairwise match data) upon successful run for logged-in users.
+- **Usage Statistics**: Introduced a dynamic dashboard displaying usage streaks, total analyses, and a 30-day activity graph.
+- **Cross-User Security**: Implemented strict ownership enforcement on all history endpoints, preventing ID enumeration and ensuring data privacy.
+
 ## [v1.5.0] - 2026-07-20
 
 ### Added
