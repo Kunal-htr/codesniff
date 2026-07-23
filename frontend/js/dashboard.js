@@ -228,6 +228,7 @@ function renderHistory(items) {
       </div>
     `).join('');
 
+    const pinned = item.pinned !== undefined ? item.pinned : !!item.isPinned;
     return `
       <div class="history-card" data-id="${item.id}">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -235,8 +236,8 @@ function renderHistory(items) {
             <span class="sim-badge ${badgeClass}">${simDisplay}% Match</span>
             <span class="card-date">${dateStr}</span>
           </div>
-          <button class="pin-btn" data-id="${item.id}" data-pinned="${item.isPinned}" style="background: transparent; border: none; cursor: pointer; color: ${item.isPinned ? 'var(--green)' : 'var(--border)'}; padding: 4px; transition: color 0.2s;" title="${item.isPinned ? 'Unpin' : 'Pin to top'}">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="${item.isPinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="pin-btn" data-id="${item.id}" data-pinned="${pinned}" style="background: transparent; border: none; cursor: pointer; color: ${pinned ? 'var(--green)' : 'var(--border)'}; padding: 4px; transition: color 0.2s;" title="${pinned ? 'Unpin' : 'Pin to top'}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="${pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
           </button>

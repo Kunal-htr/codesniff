@@ -114,7 +114,7 @@ export function openDiffViewer(reportId, historyId = null) {
   // Fetch data
   let dataPromise, reportDataPromise;
   if (historyId) {
-    const p = fetch(API_BASE + `/api/history/${historyId}/report/${encodeURIComponent(reportId)}`).then(res => {
+    const p = fetch(API_BASE + `/api/history/${historyId}/report/${encodeURIComponent(reportId)}`, { credentials: 'include' }).then(res => {
       if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
       return res.json();
     });
