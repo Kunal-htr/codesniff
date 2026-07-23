@@ -7,8 +7,8 @@
 <img src="https://img.shields.io/badge/status-live-success?style=for-the-badge" alt="status"/>
 
 <img src="frontend/assets/3.png" alt="{CodeSniff} Logo" width="350"/>\
-**AI-Based Code Plagiarism Detector**\
-**Detect code similarity instantly using K-gram tokenization and Winnowing algorithm**
+**CodeSniff | Hybrid Code Similarity Analyzer**\
+**Detect Java source code clones and structural plagiarism instantly. By leveraging AST-aware hybrid scoring, LCS alignment, and tokenized K-gram Winnowing, CodeSniff uncovers Type 1–4 clones even when logic is heavily disguised.**
 
 [Live Demo](https://codesniff.tech) · [Report Bug](https://github.com/Kunal-htr/codesniff/issues) · [Request Feature](https://github.com/Kunal-htr/codesniff/issues)
 
