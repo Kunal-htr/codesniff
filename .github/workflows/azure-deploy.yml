@@ -8,6 +8,7 @@ on:
       - 'test_samples/**'
       - 'ReadMe.md'
       - '.gitignore'
+      - 'CHANGELOG.md'
 
 jobs:
   build-and-deploy:
