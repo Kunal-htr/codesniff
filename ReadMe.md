@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-v1.0-blue?style=for-the-badge" alt="version"/>
+<img src="https://img.shields.io/badge/version-v2.0-blue?style=for-the-badge" alt="version"/>
 <img src="https://img.shields.io/badge/java-17-orange?style=for-the-badge&logo=java" alt="java"/>
 <img src="https://img.shields.io/badge/spring%20boot-3.3.5-green?style=for-the-badge&logo=springboot" alt="spring boot"/>
 <img src="https://img.shields.io/badge/license-MIT-purple?style=for-the-badge" alt="license"/>
@@ -33,7 +33,7 @@ and more in future releases through AI-powered semantic analysis.
 
 ## 🚀 Features
 
-> ⚠️ **Current Version (v1.0):** Supports Java source files only. Multi-language support planned for future releases.
+> ⚠️ **Current Version (v2.0):** Supports Java source files only. Multi-language support planned for future releases.
 
 - 🔍 **Token-based similarity detection** using K-gram algorithm
 - 🪟 **Winnowing algorithm** for efficient fingerprint selection
@@ -43,6 +43,7 @@ and more in future releases through AI-powered semantic analysis.
 - 💻 **Direct code paste** for quick Java code analysis
 - 📊 **Similarity percentage** results table and detailed visual report
 - ⚙️ **Configurable options** — K-gram size, window size, ignore comments
+- ☁️ **Cloud Persistence & History** tracking for authenticated users
 - 🌐 **Fully deployed** on cloud infrastructure
 ---
 
@@ -257,7 +258,7 @@ CodeSniff is alive!
 
 ## 🛡️ Input Validation & Error Handling
 
-CodeSniff v1.0 introduces strict input validation and centralized exception handling. Requests are validated using **Jakarta Bean Validation** before reaching the analysis engine. 
+CodeSniff v2.0 introduces strict input validation and centralized exception handling. Requests are validated using **Jakarta Bean Validation** before reaching the analysis engine.
 
 ### Constraints:
 * `submissions`: Must have between **1 and 200** files per batch.
@@ -343,7 +344,7 @@ Live in ~50 seconds ✅
 | Module 1 | Similarity Engine | ✅ Complete | v0.5 |
 | Module 2 | Report & Visualization | ✅ Complete | v1.0 |
 | Module 3 | Authentication and Security | ✅ Complete | v1.5 |
-| Module 4 | Database & Storage Integration | 🔄 Planned | v2.0 |
+| Module 4 | Database & Storage Integration | ✅ Complete | v2.0 |
 | Module 5 | Future AI Integration | 🔄 Planned | v2.5 |
 
 ---
