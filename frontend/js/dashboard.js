@@ -1,5 +1,6 @@
 import { $ } from './utils.js';
 import { API_BASE } from './config.js';
+import { openDiffViewer } from './diffViewer.js';
 
 let currentSearch = "";
 let currentSortBy = "createdAt";
@@ -10,6 +11,9 @@ export function initDashboard() {
   const searchInput = $("historySearch");
   const sortSelect = $("historySort");
   const searchBtn = $("historySearchBtn");
+  const sortDropdownBtn = $("sortDropdownBtn");
+  const sortDropdownMenu = $("sortDropdownMenu");
+  const sortDropdownLabel = $("sortDropdownLabel");
 
   if (searchInput && searchBtn) {
     searchBtn.addEventListener("click", () => {
@@ -25,12 +29,32 @@ export function initDashboard() {
     });
   }
 
-  if (sortSelect) {
-    sortSelect.addEventListener("change", (e) => {
-      const [by, dir] = e.target.value.split(",");
-      currentSortBy = by;
-      currentSortDir = dir;
-      loadHistory();
+  if (sortDropdownBtn && sortDropdownMenu) {
+    sortDropdownBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      sortDropdownMenu.classList.toggle("hidden");
+    });
+    
+    document.addEventListener("click", (e) => {
+      if (!sortDropdownMenu.contains(e.target) && e.target !== sortDropdownBtn) {
+        sortDropdownMenu.classList.add("hidden");
+      }
+    });
+    
+    sortDropdownMenu.querySelectorAll(".dropdown-item").forEach(item => {
+      item.addEventListener("click", (e) => {
+        const val = e.currentTarget.dataset.value;
+        const [by, dir] = val.split(",");
+        currentSortBy = by;
+        currentSortDir = dir;
+        
+        sortDropdownLabel.textContent = e.currentTarget.textContent;
+        sortDropdownMenu.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("selected"));
+        e.currentTarget.classList.add("selected");
+        sortDropdownMenu.classList.add("hidden");
+        
+        loadHistory();
+      });
     });
   }
 }
@@ -177,8 +201,9 @@ function renderHistory(items) {
   }
 
   listEl.innerHTML = items.map(item => {
-    const sim = item.highestSimilarity || 0;
-    const simDisplay = Number.isInteger(sim) ? sim : parseFloat(sim.toFixed(1));
+    const rawSim = item.highestSimilarity || 0;
+    const sim = rawSim <= 1.0 && rawSim > 0 ? rawSim * 100 : rawSim; // Convert 0-1 to 0-100
+    const simDisplay = Number.isInteger(sim) ? sim : parseFloat(sim.toFixed(2));
     let badgeClass = "low";
     if (sim >= 80) badgeClass = "high";
     else if (sim >= 50) badgeClass = "medium";
@@ -205,9 +230,16 @@ function renderHistory(items) {
 
     return `
       <div class="history-card" data-id="${item.id}">
-        <div class="card-header">
-          <span class="sim-badge ${badgeClass}">${simDisplay}% Match</span>
-          <span class="card-date">${dateStr}</span>
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="sim-badge ${badgeClass}">${simDisplay}% Match</span>
+            <span class="card-date">${dateStr}</span>
+          </div>
+          <button class="pin-btn" data-id="${item.id}" data-pinned="${item.isPinned}" style="background: transparent; border: none; cursor: pointer; color: ${item.isPinned ? 'var(--green)' : 'var(--border)'}; padding: 4px; transition: color 0.2s;" title="${item.isPinned ? 'Unpin' : 'Pin to top'}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="${item.isPinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
         </div>
         <div class="card-files">
           ${filesHtml}
@@ -243,31 +275,148 @@ function renderHistory(items) {
     });
   });
 
+  let isModalLoading = false;
   listEl.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      alert("Details view will be implemented in Phase D2!");
+    btn.addEventListener('click', async (e) => {
+      if (isModalLoading) return;
+      isModalLoading = true;
+      const id = e.currentTarget.dataset.id;
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = `<div class="btn-spinner"></div> Loading...`;
+      btn.disabled = true;
+      try {
+        await openHistoryModal(id);
+      } finally {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        isModalLoading = false;
+      }
+    });
+  });
+  
+  listEl.querySelectorAll('.pin-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = e.currentTarget.dataset.id;
+      const currentlyPinned = e.currentTarget.dataset.pinned === "true";
+      try {
+        const res = await fetch(API_BASE + `/api/history/${id}/pin`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pinned: !currentlyPinned }),
+          credentials: 'include'
+        });
+        if (res.ok) {
+          // Re-fetch to sort on backend, or we could sort DOM manually.
+          // Since we want matching backend sort behavior, a quick reload is safest without full page refresh.
+          loadHistory();
+        }
+      } catch (err) {
+        console.error("Pin toggle failed", err);
+      }
     });
   });
 }
 
 async function deleteHistory(id) {
   try {
-    const res = await fetch(API_BASE + `/api/history/${id}`, { method: 'DELETE', credentials: 'include' });
-    if (!res.ok) throw new Error("Delete failed");
-    
-    // Remove from UI instantly
-    const card = document.querySelector(`.history-card[data-id="${id}"]`);
-    if (card) {
-      card.remove();
-    }
-    
-    // If list is empty after delete, reload to show empty state
-    const listEl = $("historyList");
-    if (listEl && listEl.querySelectorAll('.history-card').length === 0) {
+    const res = await fetch(API_BASE + `/api/history/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    if (res.ok) {
       loadHistory();
+      initDashboardStats();
     }
   } catch (err) {
     console.error("Failed to delete", err);
     alert("Failed to delete record. Please try again.");
+  }
+}
+
+async function openHistoryModal(historyId) {
+  try {
+    const res = await fetch(API_BASE + `/api/history/${historyId}`, { credentials: 'include' });
+    if (!res.ok) throw new Error("Failed to load history details");
+    const data = await res.json();
+    
+    // Populate modal headers
+    const dateStr = new Date(data.createdAt).toLocaleString(undefined, {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    const rawHm = data.highestSimilarity || 0;
+    const hm = rawHm <= 1.0 && rawHm > 0 ? rawHm * 100 : rawHm;
+    $('modalHistoryDate').textContent = `Analysis on ${dateStr}`;
+    $('modalHighestMatch').textContent = `${hm.toFixed(2)}%`;
+    $('modalTotalFiles').textContent = data.fileNames.length;
+    
+    const pairsList = $('modalPairsList');
+    pairsList.innerHTML = "";
+    
+    const fullResult = data.fullResultJson;
+    if (fullResult && fullResult.pairs && fullResult.pairs.length > 0) {
+      fullResult.pairs.forEach(pair => {
+        const sim = pair.similarityScore || 0; // Already 0-100 from HistoricalPairDTO
+        const simDisplay = Number.isInteger(sim) ? sim : parseFloat(sim.toFixed(2));
+        let badgeClass = "low";
+        if (sim >= 80) badgeClass = "high";
+        else if (sim >= 50) badgeClass = "medium";
+        
+        const fileA = (pair.fileA && pair.fileA.name) ? pair.fileA.name : "File A";
+        const fileB = (pair.fileB && pair.fileB.name) ? pair.fileB.name : "File B";
+        
+        const pairEl = document.createElement('div');
+        pairEl.className = "card";
+        pairEl.style.cssText = "padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);";
+        pairEl.innerHTML = `
+          <div>
+            <div style="font-weight: 500; color: var(--navy); margin-bottom: 4px;">${fileA} &harr; ${fileB}</div>
+            <span class="sim-badge ${badgeClass}">${simDisplay}% Match</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a href="${API_BASE}/api/history/${historyId}/report/${encodeURIComponent(pair.id)}/export?format=pdf" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">Download PDF</a>
+            <button class="btn btn-primary btn-view-report" style="padding: 6px 12px; font-size: 13px;">View Report</button>
+          </div>
+        `;
+        
+        pairEl.querySelector('.btn-view-report').addEventListener('click', async (e) => {
+           const btn = e.currentTarget;
+           const originalHtml = btn.innerHTML;
+           btn.innerHTML = `<div class="btn-spinner"></div> Loading...`;
+           btn.disabled = true;
+           try {
+             await openDiffViewer(pair.id, historyId);
+           } finally {
+             btn.innerHTML = originalHtml;
+             btn.disabled = false;
+           }
+        });
+        
+        pairsList.appendChild(pairEl);
+      });
+    } else {
+      pairsList.innerHTML = "<div style='color: var(--text-secondary); text-align: center; padding: 20px;'>No pair details found in this record.</div>";
+    }
+    
+    const modal = $('historyDetailsModal');
+    modal.classList.remove('hidden');
+    
+    // Close events
+    const closeBtn = $('closeHistoryModal');
+    const handleClose = () => {
+      modal.classList.add('hidden');
+      closeBtn.removeEventListener('click', handleClose);
+    };
+    closeBtn.addEventListener('click', handleClose);
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) handleClose();
+    });
+    
+  } catch (err) {
+    console.error("Modal failed", err);
+    alert("Failed to load full analysis details.");
   }
 }

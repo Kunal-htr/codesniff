@@ -27,16 +27,27 @@ import java.util.stream.Collectors;
 import java.security.Principal;
 import java.util.UUID;
 
+import backend.modules.report.ExportService;
+import backend.modules.report.dto.ReportResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
 @RestController
 @RequestMapping("/api/history")
 public class HistoryController {
 
     private final AnalysisHistoryRepository historyRepository;
     private final UserRepository userRepository;
+    private final ExportService exportService;
+    private final ObjectMapper objectMapper;
 
-    public HistoryController(AnalysisHistoryRepository historyRepository, UserRepository userRepository) {
+    public HistoryController(AnalysisHistoryRepository historyRepository, UserRepository userRepository, ExportService exportService, ObjectMapper objectMapper) {
         this.historyRepository = historyRepository;
         this.userRepository = userRepository;
+        this.exportService = exportService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping
@@ -95,6 +106,41 @@ public class HistoryController {
         AnalysisHistory history = getOwnedHistory(id, principal);
         history.setPinned(request.pinned());
         return historyRepository.save(history);
+    }
+
+    @GetMapping("/{id}/report/{pairId}")
+    public ResponseEntity<backend.modules.history.dto.HistoricalPairDTO> getHistoricalReportPair(@PathVariable UUID id, @PathVariable String pairId, Principal principal) {
+        AnalysisHistory history = getOwnedHistory(id, principal);
+        backend.modules.history.dto.HistoricalPairDTO pairReport = extractPairReport(history, pairId);
+        return ResponseEntity.ok(pairReport);
+    }
+
+    @GetMapping("/{id}/report/{pairId}/export")
+    public ResponseEntity<?> exportHistoricalReportPair(@PathVariable UUID id, @PathVariable String pairId, Principal principal) {
+        AnalysisHistory history = getOwnedHistory(id, principal);
+        backend.modules.history.dto.HistoricalPairDTO pairReport = extractPairReport(history, pairId);
+        
+        byte[] pdf = exportService.generatePdf(pairReport.reportData());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report-" + pairId + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    private backend.modules.history.dto.HistoricalPairDTO extractPairReport(AnalysisHistory history, String pairId) {
+        try {
+            JsonNode fullResult = history.getFullResultJson();
+            if (fullResult != null && fullResult.has("pairs")) {
+                for (JsonNode pairNode : fullResult.get("pairs")) {
+                    if (pairNode.has("id") && pairNode.get("id").asText().equals(pairId)) {
+                        return objectMapper.treeToValue(pairNode, backend.modules.history.dto.HistoricalPairDTO.class);
+                    }
+                }
+            }
+            throw new HistoryNotFoundException("Pair ID " + pairId + " not found in this history record.");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse historical report JSON", e);
+        }
     }
 
     @GetMapping("/stats")

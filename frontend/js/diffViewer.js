@@ -81,9 +81,10 @@ function scrollToMatch(index) {
 
 /**
  * Opens the diff viewer modal and fetches matched regions for `reportId`.
- * Called when the user clicks "View" in the results table.
+ * If `historyId` is provided, fetches from the historical endpoint instead.
+ * Called when the user clicks "View" in the results table or History modal.
  */
-export function openDiffViewer(reportId) {
+export function openDiffViewer(reportId, historyId = null) {
   const overlay = document.getElementById("diff-overlay");
   if (!overlay) return;
 
@@ -110,17 +111,27 @@ export function openDiffViewer(reportId) {
   const explanationDiv = document.getElementById("diff-explanation");
   if (explanationDiv) explanationDiv.classList.add("hidden");
 
-  // Fetch both the /matches endpoint and the report metadata
-  Promise.all([
-    fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/matches").then(res => {
+  // Fetch data
+  let dataPromise, reportDataPromise;
+  if (historyId) {
+    const p = fetch(API_BASE + `/api/history/${historyId}/report/${encodeURIComponent(reportId)}`).then(res => {
       if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
       return res.json();
-    }),
-    fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId)).then(res => {
+    });
+    dataPromise = p;
+    reportDataPromise = p.then(d => d.reportData || d);
+  } else {
+    dataPromise = fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/matches").then(res => {
       if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
       return res.json();
-    })
-  ])
+    });
+    reportDataPromise = fetch(API_BASE + "/api/report/" + encodeURIComponent(reportId)).then(res => {
+      if (!res.ok) return res.json().catch(() => null).then(b => { throw new Error((b && b.message) ? b.message : "HTTP " + res.status); });
+      return res.json();
+    });
+  }
+
+  return Promise.all([dataPromise, reportDataPromise])
   .then(([data, reportData]) => {
       const fileA = data.fileA || {};
       const fileB = data.fileB || {};
@@ -184,7 +195,10 @@ export function openDiffViewer(reportId) {
       const csvLink = document.getElementById("diff-export-csv");
       const htmlLink = document.getElementById("diff-export-html");
       const pdfLink = document.getElementById("diff-export-pdf");
-      const exportBase = API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/export?format=";
+      const exportBase = historyId 
+        ? API_BASE + `/api/history/${historyId}/report/${encodeURIComponent(reportId)}/export?format=`
+        : API_BASE + "/api/report/" + encodeURIComponent(reportId) + "/export?format=";
+        
       if (csvLink) csvLink.href = exportBase + "csv";
       if (htmlLink) htmlLink.href = exportBase + "html";
       if (pdfLink) pdfLink.href = exportBase + "pdf";

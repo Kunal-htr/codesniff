@@ -166,14 +166,24 @@ public class AnalyzeController {
             BatchSummaryDTO summary = reportService.getBatchSummary(batchId);
             
             List<String> fileNames = new ArrayList<>();
-            List<backend.modules.report.dto.ReportResponse> detailedReports = new ArrayList<>();
+            List<backend.modules.history.dto.HistoricalPairDTO> detailedReports = new ArrayList<>();
             
             for (PairSummaryDTO pair : summary.pairs()) {
                 if (!fileNames.contains(pair.a())) fileNames.add(pair.a());
                 if (!fileNames.contains(pair.b())) fileNames.add(pair.b());
                 
                 try {
-                    detailedReports.add(reportService.getReport(pair.reportId()));
+                    backend.modules.report.dto.ReportResponse report = reportService.getReport(pair.reportId());
+                    backend.modules.report.dto.MatchesResponse matches = reportService.getMatchesReport(pair.reportId());
+                    
+                    detailedReports.add(new backend.modules.history.dto.HistoricalPairDTO(
+                            pair.reportId(),
+                            matches.fileA(),
+                            matches.fileB(),
+                            pair.score() * 100, // Frontend expects 0-100% or formatted score? No wait, PairSummaryDTO already is 0-1 or 0-100? PairSummaryDTO score is 0.0 to 1.0 (from its javadoc). In HistoryController we store averageSimilarity which might be 0-100. Let's just store pair.score() * 100 or pair.score(). In dashboard.js we check if sim >= 80 etc, so it's 0-100.
+                            matches.matchedLines(),
+                            report
+                    ));
                 } catch (Exception ex) {
                     logger.warn("Could not fetch detailed report for pair " + pair.reportId() + " during history save", ex);
                 }
