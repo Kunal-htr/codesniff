@@ -1,4 +1,4 @@
-import { $ } from './utils.js';
+import { $, escapeHtml } from './utils.js';
 import { API_BASE } from './config.js';
 import { openDiffViewer } from './diffViewer.js';
 
@@ -369,13 +369,17 @@ async function openHistoryModal(historyId) {
         
         const pairEl = document.createElement('div');
         pairEl.className = "card";
-        pairEl.style.cssText = "padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);";
+        pairEl.style.cssText = "padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); flex-wrap: wrap; gap: 16px; flex-shrink: 0;";
         pairEl.innerHTML = `
-          <div>
-            <div style="font-weight: 500; color: var(--navy); margin-bottom: 4px;">${fileA} &harr; ${fileB}</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 500; color: var(--navy); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;" title="${escapeHtml(fileA)}">${escapeHtml(fileA)}</span>
+              <span style="flex-shrink: 0;">&harr;</span>
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;" title="${escapeHtml(fileB)}">${escapeHtml(fileB)}</span>
+            </div>
             <span class="sim-badge ${badgeClass}">${simDisplay}% Match</span>
           </div>
-          <div style="display: flex; gap: 8px;">
+          <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
             <a href="${API_BASE}/api/history/${historyId}/report/${encodeURIComponent(pair.id)}/export?format=pdf" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">Download PDF</a>
             <button class="btn btn-primary btn-view-report" style="padding: 6px 12px; font-size: 13px;">View Report</button>
           </div>

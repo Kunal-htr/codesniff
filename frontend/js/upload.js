@@ -117,7 +117,7 @@ export function initUpload() {
         options: opts
       };
 
-      setLoading(btnAnalyzeCode, true);
+      setLoading(btnAnalyzeCode, true, "Analyzing...");
       try {
         const res = await analyzeWithBackend(payload, "code");
         showResults(res.summary || [], opts);
@@ -160,7 +160,7 @@ export function initUpload() {
 
       const payload = { submissions, options: opts };
 
-      setLoading(btnAnalyzeFiles, true);
+      setLoading(btnAnalyzeFiles, true, "Analyzing...");
       try {
         const res = await analyzeWithBackend(payload, "files");
         showResults(res.summary || [], opts);

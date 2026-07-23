@@ -27,13 +27,13 @@ export function showToast(message, type = "info", duration = 4000) {
   }, duration);
 }
 
-export function setLoading(btn, isLoading) {
+export function setLoading(btn, isLoading, text = "Loading...") {
   if (isLoading) {
     btn.dataset.originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = `
       <div class="spinner" style="width:16px;height:16px;border-width:2px;margin:0;"></div>
-      <span>Analyzing…</span>
+      <span>${escapeHtml(text)}</span>
     `;
   } else {
     btn.disabled = false;
