@@ -25,7 +25,7 @@ public class CorsConfig {
                 "https://codesniff.vercel.app",
                 "https://codesniff-backend.azurewebsites.net"
         ));
-        configuration.setAllowedMethods(Arrays.asList("POST", "GET", "OPTIONS", "PUT", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("POST", "GET", "OPTIONS", "PUT", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
