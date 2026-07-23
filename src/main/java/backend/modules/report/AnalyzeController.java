@@ -213,6 +213,7 @@ public class AnalyzeController {
             historyRepository.save(history);
         } catch (Exception e) {
             logger.error("Failed to save analysis history for batch " + batchId + " (User: " + principal.getName() + "). Analysis succeeded, but history persistence failed.", e);
+            throw new RuntimeException("History persistence failed: " + e.getMessage(), e);
         }
     }
 

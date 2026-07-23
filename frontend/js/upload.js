@@ -9,7 +9,8 @@ export async function analyzeWithBackend(payload, mode) {
     const res = await fetch(API_BASE + "/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      credentials: "include"
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     return await res.json();
