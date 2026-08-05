@@ -8,6 +8,7 @@ target/
 .settings/
 .classpath
 .project
+documentation/
 
 # Sensitive config - NEVER commit
 src/main/resources/application.properties
