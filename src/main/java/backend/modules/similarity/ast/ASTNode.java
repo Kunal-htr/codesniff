@@ -61,7 +61,8 @@ public class ASTNode {
     private Long cachedInsensitiveHash; // lazily computed operator-insensitive hash
 
     private static final Set<NodeType> VALUE_SIGNIFICANT_TYPES = Set.of(
-        NodeType.BINARY_OP, NodeType.UNARY_OP, NodeType.ASSIGNMENT
+        NodeType.BINARY_OP, NodeType.UNARY_OP, NodeType.ASSIGNMENT,
+        NodeType.IDENTIFIER, NodeType.LITERAL, NodeType.TYPE_REF
     );
 
     public ASTNode(NodeType type) {
