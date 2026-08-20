@@ -14,12 +14,12 @@ documentation/
 src/main/resources/application.properties
 src/main/resources/application-prod.properties
 
+# Local benchmark (not pushed to repo)
+benchmark_files/
+
 # OS files
 .DS_Store
 Thumbs.db
 
 # Logs
 *.log
-
-# Local benchmark (not pushed to repo)
-benchmark/
