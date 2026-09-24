@@ -40,12 +40,10 @@ public class ASTBuilder {
         try {
             cu = StaticJavaParser.parse(rawCode);
         } catch (Exception e) {
-            // Snippet fallback: wrap in a dummy class and method
-            String wrapped = "public class DummyClass { public void dummyMethod() {\n" + rawCode + "\n} }";
             try {
+                String wrapped = "public class __Wrapper__ {\n" + rawCode + "\n}";
                 cu = StaticJavaParser.parse(wrapped);
             } catch (Exception ex) {
-                // Return root with a parse error warning leaf
                 root.addLeaf(ASTNode.NodeType.UNKNOWN, "Parse error: " + ex.getMessage());
                 return root;
             }
@@ -67,7 +65,14 @@ public class ASTBuilder {
         if (jpNode instanceof CompilationUnit) {
             current = parent; // Keep root as PROGRAM
         } else if (jpNode instanceof ClassOrInterfaceDeclaration) {
-            current = new ASTNode(ASTNode.NodeType.CLASS, ((ClassOrInterfaceDeclaration) jpNode).getNameAsString());
+            String className = ((ClassOrInterfaceDeclaration) jpNode).getNameAsString();
+            if ("__Wrapper__".equals(className)) {
+                for (Node child : jpNode.getChildNodes()) {
+                    convert(child, parent);
+                }
+                return;
+            }
+            current = new ASTNode(ASTNode.NodeType.CLASS, className);
         } else if (jpNode instanceof MethodDeclaration) {
             current = new ASTNode(ASTNode.NodeType.METHOD, ((MethodDeclaration) jpNode).getNameAsString());
         } else if (jpNode instanceof BlockStmt) {

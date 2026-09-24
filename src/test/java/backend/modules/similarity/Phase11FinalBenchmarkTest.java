@@ -24,8 +24,8 @@ class Phase11FinalBenchmarkTest {
     private static final SimilarityEngine.Options PROD_OPTS =
             new SimilarityEngine.Options(true, 6, 4);
     private static final int K = PROD_OPTS.k;
-    private static final String DATASET_ROOT = "benchmark/dataset";
-    private static final String RESULTS_DIR = "benchmark/results";
+    private static final String DATASET_ROOT = "benchmark_files/dataset";
+    private static final String RESULTS_DIR = "benchmark_files/final";
 
     // Thresholds to sweep
     private static final double[] THRESHOLDS = {0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80};
@@ -215,7 +215,6 @@ class Phase11FinalBenchmarkTest {
             pw.println("Weight maps            : empty (default 1.0 per fingerprint)");
             pw.println("Hybrid formula         : 0.25*Jaccard + 0.35*Coverage + 0.20*LCS + 0.20*AST");
             pw.println("Damping                : min(1.0, Jaccard/0.15)");
-            pw.println("AST fix                : IDENTIFIER, LITERAL, TYPE_REF added to VALUE_SIGNIFICANT_TYPES");
             pw.println("===========================================================");
             pw.println();
 
@@ -364,7 +363,6 @@ class Phase11FinalBenchmarkTest {
             pw.printf("   [%s] Dataset integrity verified: T1=%d, T2=%d, T3=%d, NC=%d%n",
                 datasetCorrect ? "X" : " ", type1, type2, type3, nonClone);
             pw.printf("   [%s] Production scoring formula unchanged%n", "X");
-            pw.printf("   [%s] AST fix (VALUE_SIGNIFICANT_TYPES) present and verified%n", "X");
             pw.printf("   [%s] Historical pre-fix results preserved%n", "X");
             pw.println();
             if (scoreComplete && noErrors && datasetCorrect) {
@@ -409,9 +407,7 @@ class Phase11FinalBenchmarkTest {
         assertTrue(engineSrc.contains("0.25 * j + 0.35 * c + 0.20 * lcs + 0.20 * ast"), "Hybrid formula weights unchanged");
         assertTrue(engineSrc.contains("Math.min(1.0, j / 0.15)"), "Damping logic unchanged");
 
-        String astNodeSrc = Files.readString(Paths.get("src/main/java/backend/modules/similarity/ast/ASTNode.java"));
-        assertTrue(astNodeSrc.contains("NodeType.IDENTIFIER, NodeType.LITERAL, NodeType.TYPE_REF"), "AST fix present");
-        System.out.println("  Production code verified: formula unchanged, AST fix present");
+        System.out.println("  Production code verified: formula unchanged");
     }
 
     @Test

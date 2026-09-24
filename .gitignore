@@ -16,6 +16,8 @@ src/main/resources/application-prod.properties
 
 # Local benchmark (not pushed to repo)
 benchmark_files/
+benchmark_new/
+
 
 # OS files
 .DS_Store
